@@ -93,6 +93,20 @@ MAIN
     LDA #(Mstr_Ctrl_Text_XDouble|Mstr_Ctrl_Text_YDouble)
     STA @w MASTER_CTRL_REG_H
 
+    ; Initialize matrix keyboard
+    LDA #$FF
+    STA VIA1_DDRA
+    LDA #$00
+    STA VIA1_DDRB
+
+    STZ VIA1_PRB
+    STZ VIA1_PRA
+    
+    LDA #$7F
+    STA VIA0_DDRA
+    STA VIA0_PRA
+    STZ VIA0_PRB
+
     ; Disable the cursor
     LDA VKY_TXT_CURSOR_CTRL_REG
     AND #$FE
@@ -199,21 +213,7 @@ done_lut:
     sta SP0_Ctrl
     
     JSR Init_IRQHandler
-    
-    ; Initialize matrix keyboard
-    LDA #$FF
-    STA VIA1_DDRA
-    LDA #$00
-    STA VIA1_DDRB
 
-    STZ VIA1_PRB
-    STZ VIA1_PRA
-    
-    LDA #$7F
-    STA VIA0_DDRA
-    STA VIA0_PRA
-    STZ VIA0_PRB
-    
     LDA #$02 ; Set I/O page to 2
     STA MMU_IO_CTRL
     
