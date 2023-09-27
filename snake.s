@@ -341,10 +341,10 @@ Poll
     ; TODO: Need to only update once per movement cycle
 CheckLeftArrow
     ; LeftArrow is PA0, PB2
-    LDA #$FE
+    LDA #(1 << 0 ^ $FF)
     STA VIA1_PRA
     LDA VIA1_PRB
-    CMP #$FB
+    CMP #(1 << 2 ^ $FF)
     BEQ CheckLeftPressed
     ; left_press wasn't pressed down, save that info if we last saw it on
     STZ left_press
@@ -377,10 +377,10 @@ CheckLeftPressed
 
 CheckUpArrow
     ; UpArrow is PA0, PB7
-    LDA #$FE
+    LDA #(1 << 0 ^ $FF)
     STA VIA1_PRA
     LDA VIA1_PRB
-    CMP #$7F
+    CMP #(1 << 7 ^ $FF)
     BEQ CheckUpPressed
     ; up_press wasn't pressed down, save that info if we last saw it on
     STZ up_press
