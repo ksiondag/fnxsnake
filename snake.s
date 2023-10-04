@@ -18,10 +18,7 @@ vel_y = $3B
 vel_x = $3D
 
 ; Button up/down tracking
-left_press = $3F
-right_press = $40
-up_press = $41
-down_press = $42
+direction_press = $40
 
 ; Code
 * = $000000 

@@ -160,10 +160,7 @@ MAIN
     STA vel_x
     STZ vel_x+1
 
-    STZ up_press
-    STZ left_press
-    STZ right_press
-    STZ down_press
+    STZ direction_press
 	JMP Lock
 
 color_start:
