@@ -161,6 +161,7 @@ MAIN
     STZ vel_x+1
 
     STZ direction_press
+    STZ direction_moving
 	JMP Lock
 
 color_start:

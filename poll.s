@@ -24,25 +24,22 @@ CheckLeftPressed
     AND #$20
     CMP #$00
     BNE CheckUpArrow
-    
-    LDA vel_x
+
+    ; Only set next direction to left if current direction is not left or right
+    LDA direction_moving
+    AND #$30
     CMP #$00
     BNE CheckUpArrow
-    
-    LDA vel_x+1
-    CMP #$00
-    BNE CheckUpArrow
+
+    LDA direction_moving
+    AND #$F0
+    ORA #$02
+    STA direction_moving
     
     LDA direction_press
     ORA #$20
     STA direction_press
 
-    LDA #$FC
-    STA vel_x
-    LDA #$FF
-    STA vel_x+1
-    STZ vel_y
-    STZ vel_y+1
     JMP DoneCheckInput
 
 CheckUpArrow
@@ -63,26 +60,22 @@ CheckUpPressed
     AND #$80
     CMP #$00
     BNE CheckRightArrow
-    
-    LDA vel_y
+
+    ; Only set next direction to up if current direction is not up or down
+    LDA direction_moving
+    AND #$C0
     CMP #$00
     BNE CheckRightArrow
-    
-    LDA vel_y+1
-    CMP #$00
-    BNE CheckRightArrow
+
+    LDA direction_moving
+    AND #$F0
+    ORA #$08
+    STA direction_moving
     
     LDA direction_press
-    ORA #$70
+    ORA #$80
     STA direction_press
 
-    LDA #$FC
-    STA vel_y
-    LDA #$FF
-    STA vel_y+1
-    LDA #$00
-    STA vel_x
-    STA vel_x+1
     JMP DoneCheckInput
 
 CheckRightArrow
@@ -104,26 +97,22 @@ CheckRightPressed
     AND #$10
     CMP #$00
     BNE CheckDownArrow
-    
-    LDA vel_x
+
+    ; Only set next direction to left if current direction is not left or right
+    LDA direction_moving
+    AND #$30
     CMP #$00
     BNE CheckDownArrow
-    
-    LDA vel_x+1
-    CMP #$00
-    BNE CheckDownArrow
+
+    LDA direction_moving
+    AND #$F0
+    ORA #$01
+    STA direction_moving
     
     LDA direction_press
     ORA #$10
     STA direction_press
 
-    LDA #$3
-    STA vel_x
-    LDA #$00
-    STA vel_x+1
-    LDA #$00
-    STA vel_y
-    STA vel_y+1
     JMP DoneCheckInput
 
 CheckDownArrow
@@ -145,26 +134,22 @@ CheckDownPressed
     AND #$40
     CMP #$00
     BNE DoneCheckInput
-    
-    LDA vel_y
+
+    ; Only set next direction to up if current direction is not up or down
+    LDA direction_moving
+    AND #$C0
     CMP #$00
     BNE DoneCheckInput
-    
-    LDA vel_y+1
-    CMP #$00
-    BNE DoneCheckInput
+
+    LDA direction_moving
+    AND #$F0
+    ORA #$04
+    STA direction_moving
     
     LDA direction_press
     ORA #$40
     STA direction_press
 
-    LDA #$3
-    STA vel_y
-    LDA #$00
-    STA vel_y+1
-    LDA #$00
-    STA vel_x
-    STA vel_x+1
     JMP DoneCheckInput
 
 DoneCheckInput

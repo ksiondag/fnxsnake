@@ -20,6 +20,9 @@ vel_x = $3D
 ; Button up/down tracking
 direction_press = $40
 
+; Current direction, next direction tracking
+direction_moving = $41
+
 ; Code
 * = $000000 
         .byte 0
@@ -29,85 +32,17 @@ direction_press = $40
 
 .include "init.s"
 .include "poll.s"
+.include "movement.s"
+.include "collision.s"
 
 Lock
     JSR Poll
     LDA frame_counter
     BNE Lock
 
-    ; Use 816 mode
-    CLC
-    XCE
-    
-    setaxs
-
-    ; Move sprite to the right
-    STZ MMU_IO_CTRL ; Go back to I/O Page 0
-
-    ; Nudge sprite to the right
-    setaxl
-    CLC
-    LDA @w sprite_x
-    ADC @w vel_x
-    STA @w sprite_x
-    
-    ; Nudge sprite down
-    CLC
-    LDA @w sprite_y
-    ADC @w vel_y
-    STA @w sprite_y
-
-    ; Check for bounce off the bottom
-    LDA sprite_y
-    CMP #$00FE
-    BMI DoneBottomCheck
-    BRA Reset
-DoneBottomCheck
-
-    ; Check for bounce off the right
-    LDA sprite_x
-    CMP #$014F
-    BMI DoneRightCheck
-    BRA Reset
-DoneRightCheck
-
-    ; Check for bounce off the top
-    LDA sprite_y
-    CMP #$0020
-    BPL DoneTopCheck
-    BRA Reset
-DoneTopCheck
-
-    ; Check for bounce off the left
-    LDA sprite_x
-    CMP #$0020
-    BPL DoneLeftCheck
-    BRA Reset
-DoneLeftCheck
-
-
-    ; Commit sprite positions
-    LDA sprite_x
-    STA SP0_X_L 
-    LDA sprite_x+1
-    STA SP0_X_H ;
-    LDA sprite_y
-    STA SP0_Y_L
-    LDA sprite_y+1
-    STA SP0_Y_H
-
-    ; Reset frame counter
-    setaxs
-    LDA #3
-    STA frame_counter
-
-    .as
-    .xs
-    REP #$20
-    SEC
-    XCE
-
-DoneUpdate
+    JSR UpdateMovement
+    JSR AnimateMovement
+    JSR CheckCollision
     JMP Lock
 
 Reset
