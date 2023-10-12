@@ -3,7 +3,6 @@
 Poll
     LDA #$00 ; Need to be on I/O page 0
     STA MMU_IO_CTRL
-    ; TODO: Need to only update once per movement cycle
 
 CheckLeftArrow
     ; LeftArrow is PA0, PB2

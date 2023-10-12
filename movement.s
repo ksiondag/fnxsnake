@@ -30,9 +30,11 @@ UpdateMovement:
     ; Though the game is animating the movement to each tile
     ; direction of movement can only update at overlap of tile
     ; This routine controls that logic
-    LDA #$00 ; Need to be on I/O page 0
-    STA MMU_IO_CTRL
-    ; TODO: Need to only update once per movement cycle
+
+    ; Check if time to update movement
+    LDA next_update_movement
+    CMP #$07
+    BNE IncrementMovement
 
 CheckLeftMovement
     LDA direction_moving
@@ -43,7 +45,7 @@ CheckLeftMovement
     LDA #$20
     STA direction_moving
 
-    LDA #$FC
+    LDA #$FE
     STA vel_x
     LDA #$FF
     STA vel_x+1
@@ -60,7 +62,7 @@ CheckUpMovement
     LDA #$80
     STA direction_moving
 
-    LDA #$FC
+    LDA #$FE
     STA vel_y
     LDA #$FF
     STA vel_y+1
@@ -78,7 +80,7 @@ CheckRightMovement
     LDA #$10
     STA direction_moving
 
-    LDA #$3
+    LDA #$2
     STA vel_x
     LDA #$00
     STA vel_x+1
@@ -96,7 +98,7 @@ CheckDownMovement
     LDA #$40
     STA direction_moving
 
-    LDA #$3
+    LDA #$2
     STA vel_y
     LDA #$00
     STA vel_y+1
@@ -105,7 +107,14 @@ CheckDownMovement
     STA vel_x+1
     JMP DoneCheckMovement
 
+IncrementMovement
+    LDA next_update_movement
+    ADC #$01
+    STA next_update_movement
+    RTS
+
 DoneCheckMovement
+    STZ next_update_movement
     RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

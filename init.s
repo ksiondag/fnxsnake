@@ -156,12 +156,14 @@ MAIN
 
     STZ vel_y
     STZ vel_y+1
-    LDA #$03
+    LDA #$2
     STA vel_x
     STZ vel_x+1
 
     STZ direction_press
-    STZ direction_moving
+    LDA #$10
+    STA direction_moving
+    STZ next_update_movement
 	JMP Lock
 
 color_start:

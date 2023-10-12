@@ -23,6 +23,9 @@ direction_press = $40
 ; Current direction, next direction tracking
 direction_moving = $41
 
+; Next update movement counter
+next_update_movement = $42
+
 ; Code
 * = $000000 
         .byte 0
@@ -40,9 +43,9 @@ Lock
     LDA frame_counter
     BNE Lock
 
-    JSR UpdateMovement
     JSR AnimateMovement
     JSR CheckCollision
+    JSR UpdateMovement
     JMP Lock
 
 Reset
