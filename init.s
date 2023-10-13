@@ -214,7 +214,6 @@ setup_sprite:
     STZ MMU_IO_CTRL ; Go back to I/O Page 0
     
     ; Point sprite 0 to the pixel data, set its location in screen, and enable the sprite
-    init_sp0: 
     LDA #<balls_img_start ; Address = balls_img_start
     STA SP0_Addy_L
     LDA #>balls_img_start

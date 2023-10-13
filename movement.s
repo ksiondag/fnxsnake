@@ -1,5 +1,4 @@
 ; Keep track of each direction of movement, and where came from
-; 32x16 to keep things in powers of two, only using 20x15 of it
 ; 0 means movement hasn't happened on that tile yet
 ; Left byte is direction facing on entering
 ; Right byte is direction facing on exit
