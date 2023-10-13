@@ -26,6 +26,10 @@ direction_moving = $41
 ; Next update movement counter
 next_update_movement = $42
 
+; Position as grid (to save history of movement in 2d array)
+grid_pos_x = $43
+grid_pos_y = $44
+
 ; Code
 * = $000000 
         .byte 0

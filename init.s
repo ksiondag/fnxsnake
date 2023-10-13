@@ -164,6 +164,11 @@ MAIN
     LDA #$10
     STA direction_moving
     STZ next_update_movement
+
+    LDA #$01
+    STA grid_pos_x
+    STZ grid_pos_y
+
 	JMP Lock
 
 color_start:
@@ -216,10 +221,10 @@ setup_sprite:
     STA SP0_Addy_M
     STZ SP0_Addy_H
 
-    LDA #32
+    LDA #$20
     STA sprite_x
     STZ sprite_x+1
-    LDA #32
+    LDA #$20
     STA sprite_y
     STZ sprite_y+1
 
