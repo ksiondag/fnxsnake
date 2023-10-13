@@ -1,6 +1,6 @@
 # Currently Looks Like
 
-![FoenixIDE_8IOqKyzk5o](https://github.com/ksiondag/fnxsnake/assets/707352/112c2d30-b14b-4093-b346-6119a1e3f52d)
+![FoenixIDE_p57jwTmrFk](https://github.com/ksiondag/fnxsnake/assets/707352/3b0869f3-b400-4ec3-9933-3b363a26771a)
 
 # Build
 
