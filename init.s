@@ -128,7 +128,7 @@ MAIN
     STA dst_pointer+1
 
 	JSR color_start
-	JSR setup_sprite
+	JSR setup_sprites
 
     ; Load tile map colors into CLUT
     LDA #$01 ; Switch to I/O Page #1
@@ -210,15 +210,12 @@ color_loop:
 done_lut:
 	RTS
 
-setup_sprite: 
+setup_sprites:
     STZ MMU_IO_CTRL ; Go back to I/O Page 0
-    
-    ; Point sprite 0 to the pixel data, set its location in screen, and enable the sprite
-    LDA #<balls_img_start ; Address = balls_img_start
-    STA SP0_Addy_L
-    LDA #>balls_img_start
-    STA SP0_Addy_M
-    STZ SP0_Addy_H
+    LDA #$00
+    STA src_pointer
+    LDA #$D9
+    STA src_pointer+1
 
     LDA #$20
     STA sprite_x
@@ -227,24 +224,63 @@ setup_sprite:
     STA sprite_y
     STZ sprite_y+1
 
-    ; Set sprite positioning
-    LDA sprite_x
-    STA SP0_X_L 
-    LDA sprite_x+1
-    STA SP0_X_H ; upper-left corner of the screen
-    LDA sprite_y
-    STA SP0_Y_L
-    LDA sprite_y+1
-    STA SP0_Y_H
+    LDX #$00
 
+setup_sprite:
+    CPX #$02
+    BEQ done_setup_sprite
+    ; Point sprite x to the pixel data, set its location in screen, and enable the sprite
+    LDY #$00
     LDA #$41 ; Size=16x16, Layer=0, LUT=0, Enabled
-    STA SP0_Ctrl
-    
+    STA (src_pointer),y
+
+    INY
+    LDA #<balls_img_start ; Address = balls_img_start
+    STA (src_pointer),y
+
+    INY
+    LDA #>balls_img_start
+    STA (src_pointer),y
+
+    INY
+    LDA #$00
+    STA (src_pointer),y
+
+    ; Set sprite positioning
+    INY
+    LDA sprite_x
+    STA (src_pointer),y
+
+    INY
+    LDA sprite_x+1
+    STA (src_pointer),y ; upper-left corner of the screen
+
+    INY
+    LDA sprite_y
+    STA (src_pointer),y
+
+    INY 
+    LDA sprite_y+1
+    STA (src_pointer),y
+
+    INX
+
+    CLC
+    LDA src_pointer
+    ADC #$08
+    STA src_pointer
+    LDA src_pointer+1
+    ADC #$00
+    STA src_pointer+1
+
+    BRA setup_sprite
+
+done_setup_sprite:
     JSR Init_IRQHandler
 
     LDA #$02 ; Set I/O page to 2
     STA MMU_IO_CTRL
-    
+
 	RTS
 
 tile_color_loop: 

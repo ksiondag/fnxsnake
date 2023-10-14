@@ -6,8 +6,8 @@
 ; (4) 0100 means down
 ; (2) 0010 means left
 ; (1) 0001 means right
-; 44 means came facing up; leaving facing down
-; 82 means came facing down; leaving facing left
+; 44 means came facing down (from above); leaving facing down
+; 82 means came facing up (from below); leaving facing left
 movement_map:
     .byte $81, $11, $14, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
     .byte $88, $00, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00

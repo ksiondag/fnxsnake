@@ -1,43 +1,29 @@
 CheckCollision
-    ; Check for bounce off the bottom
+CheckBottom
     LDA sprite_y
     CMP #$00FE
-    BMI DoneBottomCheck
+    BMI CheckRight
     BRA Reset
-DoneBottomCheck
 
-    ; Check for bounce off the right
+CheckRight
     LDA sprite_x
     CMP #$014F
-    BMI DoneRightCheck
+    BMI CheckTop
     BRA Reset
-DoneRightCheck
 
-    ; Check for bounce off the top
+CheckTop
     LDA sprite_y
     CMP #$0020
-    BPL DoneTopCheck
+    BPL CheckLeft
     BRA Reset
-DoneTopCheck
 
-    ; Check for bounce off the left
+CheckLeft
     LDA sprite_x
     CMP #$0020
-    BPL DoneLeftCheck
+    BPL CommitPositions
     BRA Reset
-DoneLeftCheck
 
-
-    ; Commit sprite positions
-    LDA sprite_x
-    STA SP0_X_L 
-    LDA sprite_x+1
-    STA SP0_X_H ;
-    LDA sprite_y
-    STA SP0_Y_L
-    LDA sprite_y+1
-    STA SP0_Y_H
-
+CommitPositions
     ; Reset frame counter
     setaxs
     LDA #3
@@ -49,5 +35,58 @@ DoneLeftCheck
     SEC
     XCE
 
+    LDA #$00
+    STA src_pointer
+    LDA #$D9
+    STA src_pointer+1
+
+    LDX #$00
+    LDA sprite_x
+    PHA
+    LDA sprite_y
+    PHA
+
+CommitSpriteX
+    CPX #$02
+    BEQ DoneUpdate
+    INX
+
+    ; Commit sprite positions
+    LDY #$04
+    LDA sprite_x
+    STA (src_pointer),y 
+
+    INY
+    LDA sprite_x+1
+    STA (src_pointer),y
+
+    INY
+    LDA sprite_y
+    STA (src_pointer),y
+
+    INY
+    LDA sprite_y+1
+    STA (src_pointer),y
+
+    CLC
+    LDA sprite_y
+    ADC #$10
+    STA sprite_y
+
+    CLC
+    LDA src_pointer
+    ADC #$08
+    STA src_pointer
+    LDA src_pointer+1
+    ADC #$00
+    STA src_pointer+1
+
+    BRA CommitSpriteX
+
 DoneUpdate
+    PLA
+    STA sprite_y
+
+    PLA
+    STA sprite_x
     RTS
