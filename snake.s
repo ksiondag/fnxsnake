@@ -14,8 +14,8 @@ sprite_y = $36
 text_memory_pointer = $38
 frame_counter = $3A
 
-vel_y = $3B
-vel_x = $3D
+displacement = $3B
+vel = $3D
 
 ; Button up/down tracking
 direction_press = $40

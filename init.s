@@ -154,11 +154,11 @@ MAIN
 
     STZ frame_counter
 
-    STZ vel_y
-    STZ vel_y+1
+    STZ displacement
+    STZ displacement+1
     LDA #$2
-    STA vel_x
-    STZ vel_x+1
+    STA vel
+    STZ vel+1
 
     STZ direction_press
     LDA #$10

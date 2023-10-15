@@ -30,21 +30,33 @@ UpdateMovement:
     ; direction of movement can only update at overlap of tile
     ; This routine controls that logic
 
+    ; Get movement direction from movement map
+    ; This loads various information where we need it regardless of branch taken below
+    JSR MovementSrcPointer
+
     ; Check if time to update movement
     LDA next_update_movement
     CMP #$07
     BNE IncrementMovement
 
-    ; Get movement direction from movement map
-    JSR MovementSrcPointer
     JSR UpdateGridPosition
     JMP CheckLeftMovement
 
 IncrementMovement:
+    ; TODO: Displacement is all I need to know
+    ; If above #$0F, then we've gone to next grid
+    ; This also handles the non-power-of-two problem
     LDA next_update_movement
     CLC
     ADC #$01
     STA next_update_movement
+    ;LDA displacement
+    ;CLC
+    ;ADC vel
+    ;STA displacement
+    ;LDA displacement+1
+    ;ADC vel+1
+    ;STA displacement+1
     RTS
 
 MovementSrcPointer:
@@ -73,7 +85,7 @@ MovementMapRowLoop:
 
 MovementMapCol:
     LDX grid_pos_x
-    LDA grid_pos_x
+    TXA
     CLC
     ADC src_pointer
     STA src_pointer
@@ -86,52 +98,96 @@ LoadDirectionMoving:
     RTS
 
 UpdateGridPosition:
-    LDA direction_moving
-    AND #$0F
-    CMP #$02
-    BEQ GridPosXDecrement
+    ; Right-shift direction_moving until see a one
+    ; Every right shift will negate velocity
+    ; Two right-shifts will switch dst_pointer from x-axis to y-axis
 
-    LDA direction_moving
-    AND #$0F
-    CMP #$01
-    BEQ GridPosXIncrement
+    ; First, point to grid_pos_x
+    LDA #<grid_pos_x
+    STA dst_pointer
+    LDA #>grid_pos_x
+    STA dst_pointer+1
 
-    LDA direction_moving
-    AND #$0F
-    CMP #$08
-    BEQ GridPosYDecrement
+    ; Using vel for grid_pos update amount
+    LDA #$01
+    STA vel
+    STZ vel+1
 
-    LDA direction_moving
-    AND #$0F
-    CMP #$04
-    BEQ GridPosYIncrement
+    ; Using displacement for src_pointer update amount
+    LDA #$01
+    STA displacement
+    STZ displacement+1
 
-GridPosXDecrement:
+    LDY #$00
+    LDX direction_moving
+
+UpdateGridPositionLoop:
+    TXA
+    AND #$01
+    BNE UpdateGridPositionCommit
+
+    TXA
+    LSR
+    TAX
+
+    ; TODO: Negation can be a routine
+    ; Negate vel, displacement
+    SEC
+    LDA #$00
+    SBC vel
+    STA vel
+    LDA #$00
+    SBC vel+1
+    STA vel+1
+
+    SEC
+    LDA #$00
+    SBC displacement
+    STA displacement
+    LDA #$00
+    SBC displacement+1
+    STA displacement+1
+
+    ; Check to switch dst_pointer, displacement to y-axis
+    INY
+    CPY #$02
+    BNE UpdateGridPositionLoop
+
     CLC
-    LDA grid_pos_x
-    ADC #$FF
-    STA grid_pos_x
-    RTS
-
-GridPosXIncrement:
-    CLC
-    LDA grid_pos_x
+    LDA dst_pointer
     ADC #$01
-    STA grid_pos_x
-    RTS
+    STA dst_pointer
+    LDA dst_pointer+1
+    ADC #$00
+    STA dst_pointer+1
 
-GridPosYDecrement:
-    CLC
-    LDA grid_pos_y
-    ADC #$FF
-    STA grid_pos_y
-    RTS
+    LDA #$14
+    STA displacement
+    STZ displacement+1
+    BRA UpdateGridPositionLoop
 
-GridPosYIncrement:
+UpdateGridPositionCommit:
+    ; X,Y need to maintain grid position
+    ; src_pointer has been properly updated above
+    LDX grid_pos_x
+    LDY grid_pos_y
+
     CLC
-    LDA grid_pos_y
-    ADC #$01
-    STA grid_pos_y
+    LDA (dst_pointer)
+    ADC vel
+    STA (dst_pointer)
+    LDA (dst_pointer)+1
+    ADC vel+1
+    STA (dst_pointer)+1
+
+    CLC ; Move src_pointer based on displacement
+    LDA src_pointer
+    ADC displacement
+    STA src_pointer
+    LDA src_pointer+1
+    ADC displacement+1
+    STA src_pointer+1
+
     RTS
 
 CheckLeftMovement:
@@ -144,11 +200,11 @@ CheckLeftMovement:
     STA direction_moving
 
     LDA #$FE
-    STA vel_x
+    STA vel
     LDA #$FF
-    STA vel_x+1
-    STZ vel_y
-    STZ vel_y+1
+    STA vel+1
+    STZ displacement
+    STZ displacement+1
     JMP DoneCheckMovement
 
 CheckUpMovement:
@@ -161,12 +217,12 @@ CheckUpMovement:
     STA direction_moving
 
     LDA #$FE
-    STA vel_y
+    STA displacement
     LDA #$FF
-    STA vel_y+1
+    STA displacement+1
     LDA #$00
-    STA vel_x
-    STA vel_x+1
+    STA vel
+    STA vel+1
     JMP DoneCheckMovement
 
 CheckRightMovement:
@@ -179,12 +235,12 @@ CheckRightMovement:
     STA direction_moving
 
     LDA #$2
-    STA vel_x
+    STA vel
     LDA #$00
-    STA vel_x+1
+    STA vel+1
     LDA #$00
-    STA vel_y
-    STA vel_y+1
+    STA displacement
+    STA displacement+1
     JMP DoneCheckMovement
 
 CheckDownMovement:
@@ -197,12 +253,12 @@ CheckDownMovement:
     STA direction_moving
 
     LDA #$2
-    STA vel_y
+    STA displacement
     LDA #$00
-    STA vel_y+1
+    STA displacement+1
     LDA #$00
-    STA vel_x
-    STA vel_x+1
+    STA vel
+    STA vel+1
     JMP DoneCheckMovement
 
 DoneCheckMovement:
@@ -218,19 +274,19 @@ AnimateSpriteX:
     ; Nudge sprite along x-direction
     CLC
     LDA sprite_x
-    ADC vel_x
+    ADC vel
     STA sprite_x
     LDA sprite_x+1
-    ADC vel_x+1
+    ADC vel+1
     STA sprite_x+1
     
     ; Nudge sprite along y-direction
     CLC
     LDA sprite_y
-    ADC vel_y
+    ADC displacement
     STA sprite_y
     LDA sprite_y+1
-    ADC vel_y+1
+    ADC displacement+1
     STA sprite_y+1
 
     RTS
