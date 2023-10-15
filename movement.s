@@ -36,11 +36,9 @@ UpdateMovement:
     BNE IncrementMovement
 
     ; Get movement direction from movement map
-    LDA #<movement_map
-    STA src_pointer
-    LDA #>movement_map
-    STA src_pointer+1
-    JMP MovementMapRow
+    JSR MovementSrcPointer
+    JSR UpdateGridPosition
+    JMP CheckLeftMovement
 
 IncrementMovement:
     LDA next_update_movement
@@ -49,6 +47,14 @@ IncrementMovement:
     STA next_update_movement
     RTS
 
+MovementSrcPointer:
+    ; Sets src_pointer to current x,y direction_moving
+    ; Sets X to grid_pos_x
+    ; Loads direction_moving with the value stored at that x,y in movement_map 
+    LDA #<movement_map
+    STA src_pointer
+    LDA #>movement_map
+    STA src_pointer+1
 MovementMapRow:
     LDY #$00
 MovementMapRowLoop:
@@ -66,11 +72,20 @@ MovementMapRowLoop:
     BRA MovementMapRowLoop
 
 MovementMapCol:
-    LDY grid_pos_x
+    LDX grid_pos_x
+    LDA grid_pos_x
+    CLC
+    ADC src_pointer
+    STA src_pointer
+    LDA src_pointer+1
+    ADC #0
+    STA src_pointer+1
 LoadDirectionMoving:
-    LDA (src_pointer),y
+    LDA (src_pointer)
     STA direction_moving
+    RTS
 
+UpdateGridPosition:
     LDA direction_moving
     AND #$0F
     CMP #$02
@@ -96,28 +111,28 @@ GridPosXDecrement:
     LDA grid_pos_x
     ADC #$FF
     STA grid_pos_x
-    BRA CheckLeftMovement
+    RTS
 
 GridPosXIncrement:
     CLC
     LDA grid_pos_x
     ADC #$01
     STA grid_pos_x
-    BRA CheckLeftMovement
+    RTS
 
 GridPosYDecrement:
     CLC
     LDA grid_pos_y
     ADC #$FF
     STA grid_pos_y
-    BRA CheckLeftMovement
+    RTS
 
 GridPosYIncrement:
     CLC
     LDA grid_pos_y
     ADC #$01
     STA grid_pos_y
-    BRA CheckLeftMovement
+    RTS
 
 CheckLeftMovement:
     LDA direction_moving
@@ -194,30 +209,28 @@ DoneCheckMovement:
     STZ next_update_movement
     RTS
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 AnimateMovement:
-    ; Use 816 mode
-    CLC
-    XCE
-    
-    setaxs
-
-    ; Move sprite to the right
     STZ MMU_IO_CTRL ; Go back to I/O Page 0
 
-    ; Nudge sprite to the right
-    setaxl
+AnimateSpriteX:
+    ; Nudge sprite along x-direction
     CLC
-    LDA @w sprite_x
-    ADC @w vel_x
-    STA @w sprite_x
+    LDA sprite_x
+    ADC vel_x
+    STA sprite_x
+    LDA sprite_x+1
+    ADC vel_x+1
+    STA sprite_x+1
     
-    ; Nudge sprite down
+    ; Nudge sprite along y-direction
     CLC
-    LDA @w sprite_y
-    ADC @w vel_y
-    STA @w sprite_y
+    LDA sprite_y
+    ADC vel_y
+    STA sprite_y
+    LDA sprite_y+1
+    ADC vel_y+1
+    STA sprite_y+1
 
     RTS

@@ -163,11 +163,14 @@ MAIN
     STZ direction_press
     LDA #$10
     STA direction_moving
-    STZ next_update_movement
+    LDA #$07
+    STA next_update_movement
 
-    LDA #$01
-    STA grid_pos_x
+    STZ grid_pos_x
     STZ grid_pos_y
+
+    LDA #$02
+    STA snake_length
 
 	JMP Lock
 

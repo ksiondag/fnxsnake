@@ -30,6 +30,8 @@ next_update_movement = $42
 grid_pos_x = $43
 grid_pos_y = $44
 
+snake_length = $45
+
 ; Code
 * = $000000 
         .byte 0
@@ -47,18 +49,10 @@ Lock
     LDA frame_counter
     BNE Lock
 
-    JSR AnimateMovement
-    JSR CheckCollision
     JSR UpdateMovement
-    JMP Lock
-
-Reset
-    .as
-    .xs
-    REP #$20
-    SEC
-    XCE
-	JMP MAIN
+    JSR AnimateMovement
+    ; CheckCollision either ends with reset or falls back into lock from above
+    JMP CheckCollision
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
