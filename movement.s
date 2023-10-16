@@ -185,6 +185,8 @@ UpdateGridPositionCommit:
     RTS
 
 LoadLastCell
+    PHY
+    PHX
     ; Using direction_moving_update_amount for direction_moving_pointer update amount
     LDA #$FF
     STA direction_moving_update_amount
@@ -237,6 +239,9 @@ LoadCellCommit:
     LDA direction_moving_pointer+1
     ADC direction_moving_update_amount+1
     STA direction_moving_pointer+1
+
+    PLX
+    PLY
 
     RTS
 
