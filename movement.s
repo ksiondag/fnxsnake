@@ -130,23 +130,18 @@ UpdateGridPositionLoop:
     LSR
     TAX
 
-    ; TODO: Negation can be a routine
-    ; Negate vel, displacement
-    SEC
-    LDA #$00
-    SBC vel
-    STA vel
-    LDA #$00
-    SBC vel+1
-    STA vel+1
-
-    SEC
-    LDA #$00
-    SBC displacement
-    STA displacement
-    LDA #$00
-    SBC displacement+1
-    STA displacement+1
+    ; Negate vel, displacement    
+    LDA #<vel
+    STA negate_pointer
+    LDA #>vel
+    STA negate_pointer+1
+    JSR NegatePointerInStack
+    
+    LDA #<displacement
+    STA negate_pointer
+    LDA #>displacement
+    STA negate_pointer+1
+    JSR NegatePointerInStack
 
     ; Check to switch dst_pointer, displacement to y-axis
     INY
@@ -289,4 +284,14 @@ AnimateSpriteX:
     ADC displacement+1
     STA sprite_y+1
 
+    RTS
+
+NegatePointerInStack:
+    SEC
+    LDA #$00
+    SBC (negate_pointer)
+    STA (negate_pointer)
+    LDA #$00
+    SBC (negate_pointer+1)
+    STA (negate_pointer+1)
     RTS

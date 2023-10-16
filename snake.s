@@ -32,6 +32,8 @@ grid_pos_y = $44
 
 snake_length = $45
 
+negate_pointer = $47
+
 ; Code
 * = $000000 
         .byte 0
