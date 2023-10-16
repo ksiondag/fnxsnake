@@ -14,8 +14,8 @@ sprite_y = $36
 text_memory_pointer = $38
 frame_counter = $3A
 
-displacement = $3B
-vel = $3D
+displacement = $3C
+vel = $3E
 
 ; Button up/down tracking
 direction_press = $40
@@ -27,12 +27,16 @@ direction_moving = $41
 next_update_movement = $42
 
 ; Position as grid (to save history of movement in 2d array)
-grid_pos_x = $43
-grid_pos_y = $44
+grid_pos_x = $44
+grid_pos_y = $45
+grid_pos_update_amount = $46
 
-snake_length = $45
+snake_length = $48
 
-negate_pointer = $47
+negate_pointer = $4A
+
+direction_moving_pointer = $4C
+direction_moving_update_amount = $4E
 
 ; Code
 * = $000000 
@@ -47,7 +51,7 @@ negate_pointer = $47
 .include "collision.s"
 
 Lock
-    JSR Poll
+    ;JSR Poll
     LDA frame_counter
     BNE Lock
 

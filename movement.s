@@ -60,26 +60,26 @@ IncrementMovement:
     RTS
 
 MovementSrcPointer:
-    ; Sets src_pointer to current x,y direction_moving
+    ; Sets direction_moving_pointer to current x,y direction_moving
     ; Sets X to grid_pos_x
     ; Loads direction_moving with the value stored at that x,y in movement_map 
     LDA #<movement_map
-    STA src_pointer
+    STA direction_moving_pointer
     LDA #>movement_map
-    STA src_pointer+1
+    STA direction_moving_pointer+1
 MovementMapRow:
     LDY #$00
 MovementMapRowLoop:
     CPY grid_pos_y
     BEQ MovementMapCol
 
-    CLC ; Move src_pointer to the next row of movement_map
-    LDA src_pointer
+    CLC ; Move direction_moving_pointer to the next row of movement_map
+    LDA direction_moving_pointer
     ADC #$14 ; A row is 20 (#$14) columns long
-    STA src_pointer
-    LDA src_pointer+1
+    STA direction_moving_pointer
+    LDA direction_moving_pointer+1
     ADC #0
-    STA src_pointer+1
+    STA direction_moving_pointer+1
     INY
     BRA MovementMapRowLoop
 
@@ -87,13 +87,13 @@ MovementMapCol:
     LDX grid_pos_x
     TXA
     CLC
-    ADC src_pointer
-    STA src_pointer
-    LDA src_pointer+1
+    ADC direction_moving_pointer
+    STA direction_moving_pointer
+    LDA direction_moving_pointer+1
     ADC #0
-    STA src_pointer+1
+    STA direction_moving_pointer+1
 LoadDirectionMoving:
-    LDA (src_pointer)
+    LDA (direction_moving_pointer)
     STA direction_moving
     RTS
 
@@ -108,18 +108,17 @@ UpdateGridPosition:
     LDA #>grid_pos_x
     STA dst_pointer+1
 
-    ; Using vel for grid_pos update amount
     LDA #$01
-    STA vel
-    STZ vel+1
+    STA grid_pos_update_amount
+    STZ grid_pos_update_amount+1
 
-    ; Using displacement for src_pointer update amount
     LDA #$01
-    STA displacement
-    STZ displacement+1
+    STA direction_moving_update_amount
+    STZ direction_moving_update_amount+1
 
     LDY #$00
-    LDX direction_moving
+    LDA (direction_moving_pointer)
+    TAX
 
 UpdateGridPositionLoop:
     TXA
@@ -130,20 +129,20 @@ UpdateGridPositionLoop:
     LSR
     TAX
 
-    ; Negate vel, displacement    
-    LDA #<vel
+    ; Negate grid_pos_update_amount, direction_moving_update_amount    
+    LDA #<grid_pos_update_amount
     STA negate_pointer
-    LDA #>vel
+    LDA #>grid_pos_update_amount
     STA negate_pointer+1
     JSR NegatePointerInStack
     
-    LDA #<displacement
+    LDA #<direction_moving_update_amount
     STA negate_pointer
-    LDA #>displacement
+    LDA #>direction_moving_update_amount
     STA negate_pointer+1
     JSR NegatePointerInStack
 
-    ; Check to switch dst_pointer, displacement to y-axis
+    ; Check to switch dst_pointer, direction_moving_update_amount to y-axis
     INY
     CPY #$02
     BNE UpdateGridPositionLoop
@@ -157,42 +156,104 @@ UpdateGridPositionLoop:
     STA dst_pointer+1
 
     LDA #$14
-    STA displacement
-    STZ displacement+1
+    STA direction_moving_update_amount
+    STZ direction_moving_update_amount+1
     BRA UpdateGridPositionLoop
 
 UpdateGridPositionCommit:
     ; X,Y need to maintain grid position
-    ; src_pointer has been properly updated above
+    ; direction_moving_pointer has been properly updated above
     LDX grid_pos_x
     LDY grid_pos_y
 
     CLC
     LDA (dst_pointer)
-    ADC vel
+    ADC grid_pos_update_amount
     STA (dst_pointer)
     LDA (dst_pointer)+1
-    ADC vel+1
+    ADC grid_pos_update_amount+1
     STA (dst_pointer)+1
 
-    CLC ; Move src_pointer based on displacement
-    LDA src_pointer
-    ADC displacement
-    STA src_pointer
-    LDA src_pointer+1
-    ADC displacement+1
-    STA src_pointer+1
+    CLC ; Move direction_moving_pointer based on direction_moving_update_amount
+    LDA direction_moving_pointer
+    ADC direction_moving_update_amount
+    STA direction_moving_pointer
+    LDA direction_moving_pointer+1
+    ADC direction_moving_update_amount+1
+    STA direction_moving_pointer+1
+
+    RTS
+
+LoadLastCell
+    ; Using direction_moving_update_amount for direction_moving_pointer update amount
+    LDA #$FF
+    STA direction_moving_update_amount
+    LDA #$FF
+    STA direction_moving_update_amount+1
+
+    LDY #$00
+    LDA (direction_moving_pointer)
+    LSR
+    LSR
+    LSR
+    LSR
+    TAX
+
+LoadCellLoop:
+    TXA
+    AND #$01
+    BNE LoadCellCommit
+
+    TXA
+    LSR
+    TAX
+
+    ; Negate direction_moving_update_amount        
+    LDA #<direction_moving_update_amount
+    STA negate_pointer
+    LDA #>direction_moving_update_amount
+    STA negate_pointer+1
+    JSR NegatePointerInStack
+
+    ; Check to switch dst_pointer, direction_moving_update_amount to y-axis
+    INY
+    CPY #$02
+    BNE LoadCellLoop
+
+    LDA #$EC
+    STA direction_moving_update_amount
+    LDA #$FF
+    STA direction_moving_update_amount+1
+
+    BRA LoadCellLoop
+
+LoadCellCommit:
+    ; X,Y need to maintain grid position
+    ; direction_moving_pointer has been properly updated above
+    CLC ; Move direction_moving_pointer based on direction_moving_update_amount
+    LDA direction_moving_pointer
+    ADC direction_moving_update_amount
+    STA direction_moving_pointer
+    LDA direction_moving_pointer+1
+    ADC direction_moving_update_amount+1
+    STA direction_moving_pointer+1
 
     RTS
 
 CheckLeftMovement:
-    LDA direction_moving
+    LDA direction_moving_pointer
+    PHA
+    LDA direction_moving_pointer+1
+    PHA
+    JSR LoadLastCell
+
+    LDA (direction_moving_pointer)
     AND #$0F
     CMP #$02
     BNE CheckUpMovement
 
-    LDA #$20
-    STA direction_moving
+    ;LDA #$20
+    ;STA (direction_moving_pointer)
 
     LDA #$FE
     STA vel
@@ -203,13 +264,13 @@ CheckLeftMovement:
     JMP DoneCheckMovement
 
 CheckUpMovement:
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$0F
     CMP #$08
     BNE CheckRightMovement
 
-    LDA #$80
-    STA direction_moving
+    ;LDA #$80
+    ;STA (direction_moving_pointer)
 
     LDA #$FE
     STA displacement
@@ -221,13 +282,13 @@ CheckUpMovement:
     JMP DoneCheckMovement
 
 CheckRightMovement:
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$0F
     CMP #$01
     BNE CheckDownMovement
 
-    LDA #$10
-    STA direction_moving
+    ;LDA #$10
+    ;STA (direction_moving_pointer)
 
     LDA #$2
     STA vel
@@ -239,13 +300,13 @@ CheckRightMovement:
     JMP DoneCheckMovement
 
 CheckDownMovement:
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$0F
     CMP #$04
     BNE DoneCheckMovement
 
-    LDA #$40
-    STA direction_moving
+    ;LDA #$40
+    ;STA (direction_moving_pointer)
 
     LDA #$2
     STA displacement
@@ -257,6 +318,11 @@ CheckDownMovement:
     JMP DoneCheckMovement
 
 DoneCheckMovement:
+    PLA
+    STA direction_moving_pointer+1
+    PLA
+    STA direction_moving_pointer
+
     STZ next_update_movement
     RTS
 
@@ -287,11 +353,15 @@ AnimateSpriteX:
     RTS
 
 NegatePointerInStack:
+    PHY
+    LDY #$00
     SEC
     LDA #$00
-    SBC (negate_pointer)
-    STA (negate_pointer)
+    SBC (negate_pointer),y
+    STA (negate_pointer),y
+    INY
     LDA #$00
-    SBC (negate_pointer+1)
-    STA (negate_pointer+1)
+    SBC (negate_pointer),y
+    STA (negate_pointer),y
+    PLY
     RTS
