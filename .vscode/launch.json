@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run build.ps1",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/build.ps1",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+        }
+    ]
+}
