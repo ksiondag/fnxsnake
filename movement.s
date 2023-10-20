@@ -50,13 +50,13 @@ IncrementMovement:
     CLC
     ADC #$01
     STA next_update_movement
-    ;LDA displacement
-    ;CLC
-    ;ADC vel
-    ;STA displacement
-    ;LDA displacement+1
-    ;ADC vel+1
-    ;STA displacement+1
+    LDA displacement
+    CLC
+    ADC vel
+    STA displacement
+    LDA displacement+1
+    ADC vel+1
+    STA displacement+1
     RTS
 
 MovementSrcPointer:
@@ -69,6 +69,8 @@ MovementSrcPointer:
     STA direction_moving_pointer+1
 MovementMapRow:
     LDY #$00
+    LDA #$20
+    STA sprite_y
 MovementMapRowLoop:
     CPY grid_pos_y
     BEQ MovementMapCol
@@ -80,18 +82,45 @@ MovementMapRowLoop:
     LDA direction_moving_pointer+1
     ADC #0
     STA direction_moving_pointer+1
+
+    CLC
+    LDA sprite_y
+    ADC #$10
+    STA sprite_y
+    LDA sprite_y+1
+    ADC #$00
+    STA sprite_y+1
+
     INY
     BRA MovementMapRowLoop
 
 MovementMapCol:
-    LDX grid_pos_x
-    TXA
-    CLC
-    ADC direction_moving_pointer
+    LDX #$00
+    LDA #$20
+    STA sprite_x
+MovementMapColLoop:
+    CPX grid_pos_x
+    BEQ LoadDirectionMoving
+
+    CLC ; Move direction_moving_pointer to the next row of movement_map
+    LDA direction_moving_pointer
+    ADC #$01 ; Move to next byte
     STA direction_moving_pointer
     LDA direction_moving_pointer+1
     ADC #0
     STA direction_moving_pointer+1
+
+    CLC
+    LDA sprite_x
+    ADC #$10
+    STA sprite_x
+    LDA sprite_x+1
+    ADC #$00
+    STA sprite_x+1
+
+    INX
+    BRA MovementMapColLoop
+
 LoadDirectionMoving:
     LDA (direction_moving_pointer)
     STA direction_moving
@@ -336,24 +365,64 @@ DoneCheckMovement:
 AnimateMovement:
     STZ MMU_IO_CTRL ; Go back to I/O Page 0
 
-AnimateSpriteX:
-    ; Nudge sprite along x-direction
-    CLC
+    ; Start at first sprite
+    LDA #$00
+    STA dst_pointer
+    LDA #$D9
+    STA dst_pointer+1
+
     LDA sprite_x
-    ADC vel
-    STA sprite_x
+    PHA
     LDA sprite_x+1
-    ADC vel+1
-    STA sprite_x+1
-    
-    ; Nudge sprite along y-direction
-    CLC
+    PHA
     LDA sprite_y
-    ADC displacement
-    STA sprite_y
+    PHA
     LDA sprite_y+1
-    ADC displacement+1
+    PHA
+
+    LDX #$00
+
+AnimateSpriteX
+    CPX #$02
+    BEQ DoneAnimateMovement
+    INX
+
+    ; Commit sprite positions
+    LDY #$04
+    LDA sprite_x
+    STA (dst_pointer),y 
+
+    INY
+    LDA sprite_x+1
+    STA (dst_pointer),y
+
+    INY
+    LDA sprite_y
+    STA (dst_pointer),y
+
+    INY
+    LDA sprite_y+1
+    STA (dst_pointer),y
+
+    CLC
+    LDA dst_pointer
+    ADC #$08
+    STA dst_pointer
+    LDA dst_pointer+1
+    ADC #$00
+    STA dst_pointer+1
+
+    BRA AnimateSpriteX
+
+DoneAnimateMovement
+    PLA
     STA sprite_y+1
+    PLA
+    STA sprite_y
+    PLA
+    STA sprite_x+1
+    PLA
+    STA sprite_x
 
     RTS
 

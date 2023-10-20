@@ -11,7 +11,7 @@ dst_pointer = $30
 src_pointer = $32
 sprite_x = $34
 sprite_y = $36
-text_memory_pointer = $38
+sprite_update_amount = $38
 frame_counter = $3A
 
 displacement = $3C
