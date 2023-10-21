@@ -15,13 +15,13 @@ CheckCollision
     setaxl
 CheckBottom
     LDA sprite_y
-    CMP #$00FE
+    CMP #$0101
     BMI CheckRight
     BRA Reset
 
 CheckRight
     LDA sprite_x
-    CMP #$014F
+    CMP #$0151
     BMI CheckTop
     BRA Reset
 

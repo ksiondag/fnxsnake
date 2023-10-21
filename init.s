@@ -161,16 +161,16 @@ MAIN
     STZ displacement+1
     LDA #$01
     STA vel+1
-    LDA #$00
+    LDA #$80
     STA vel
 
     STZ direction_press
     LDA #$10
     STA direction_moving
 
-    LDA #$13
+    LDA #$00
     STA grid_pos_x
-    LDA #$0E
+    LDA #$00
     STA grid_pos_y
 
 	JMP Lock
