@@ -365,3 +365,35 @@ setup_tile_map:
     STZ VKY_TM0_POS_Y_H
 
 	RTS
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ClearScreen
+    LDA MMU_IO_CTRL ; Back up I/O page
+    PHA
+    
+    LDA #$02 ; Set I/O page to 2
+    STA MMU_IO_CTRL
+    
+    STZ dst_pointer
+    LDA #$C0
+    STA dst_pointer+1
+
+ClearScreen_ForEach
+    LDA #32 ; Character 0
+    STA (dst_pointer)
+        
+    CLC
+    LDA dst_pointer
+    ADC #$01
+    STA dst_pointer
+    LDA dst_pointer+1
+    ADC #$00 ; Add carry
+    STA dst_pointer+1
+
+    CMP #$C5
+    BNE ClearScreen_ForEach
+    
+    PLA
+    STA MMU_IO_CTRL ; Restore I/O page
+    RTS

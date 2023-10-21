@@ -41,6 +41,8 @@ UpdateMovement:
 
     JSR UpdateGridPosition
     STZ next_update_movement
+    STZ displacement
+    STZ displacement+1
     RTS
 
 IncrementMovement:
@@ -371,6 +373,7 @@ AnimateSpriteX
     BEQ DoneAnimateMovement
     INX
     JSR LoadLastCell
+    JSR AddDisplacement
 
     ; Commit sprite positions
     LDY #$04
@@ -397,6 +400,8 @@ AnimateSpriteX
     ADC #$00
     STA dst_pointer+1
 
+    JSR SubtractDisplacement
+
     BRA AnimateSpriteX
 
 DoneAnimateMovement
@@ -413,6 +418,84 @@ DoneAnimateMovement
     STA direction_moving_pointer+1
     PLA
     STA direction_moving_pointer
+
+    RTS
+
+LoadDisplacement
+    LDA displacement
+    STA sprite_update_amount
+    LDA displacement+1
+    STA sprite_update_amount+1
+    RTS
+AddDisplacement
+    JSR LoadDisplacement
+    JMP DisplacementStart
+SubtractDisplacement
+    JSR LoadDisplacement
+    LDA #<sprite_update_amount
+    STA negate_pointer
+    LDA #>sprite_update_amount
+    STA negate_pointer+1
+    JSR NegatePointerInStack
+DisplacementStart:
+    ; Right-shift direction_moving until see a one
+    ; Every right shift will negate velocity
+    ; Two right-shifts will switch dst_pointer from x-axis to y-axis
+    PHX
+    PHY
+
+    ; First, point to sprite_x
+    LDA #<sprite_x
+    STA src_pointer
+    LDA #>sprite_x
+    STA src_pointer+1
+
+    LDY #$00
+    LDA (direction_moving_pointer)
+    TAX
+
+DisplacementLoop:
+    TXA
+    AND #$01
+    BNE DisplacementCommit
+
+    TXA
+    LSR
+    TAX
+
+    ; Negate sprite_update_amount    
+    LDA #<sprite_update_amount
+    STA negate_pointer
+    LDA #>sprite_update_amount
+    STA negate_pointer+1
+    JSR NegatePointerInStack
+    
+    ; Check to switch dst_pointer, direction_moving_update_amount to y-axis
+    INY
+    CPY #$02
+    BNE DisplacementLoop
+    
+    CLC
+    LDA src_pointer
+    ADC #$02
+    STA src_pointer
+    LDA src_pointer+1
+    ADC #$00
+    STA src_pointer+1
+
+    BRA DisplacementLoop
+
+DisplacementCommit:    
+    CLC
+    LDA (src_pointer)
+    ADC sprite_update_amount
+    STA (src_pointer)
+    LDA (src_pointer)+1
+    ADC sprite_update_amount+1
+    STA (src_pointer)+1
+
+    PLY
+    PLX
 
     RTS
 
