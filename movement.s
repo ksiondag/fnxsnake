@@ -9,21 +9,21 @@
 ; 44 means came facing down (from above); leaving facing down
 ; 82 means came facing up (from below); leaving facing left
 movement_map:
-    .byte $81, $11, $14, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $88, $00, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $88, $00, $41, $11, $14, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $88, $00, $00, $00, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $28, $22, $22, $22, $42, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    .byte $81, $11, $11, $11, $11, $11, $11, $11, $11, $14, $11, $11, $11, $11, $11, $11, $11, $11, $11, $14
+    .byte $88, $00, $44, $00, $00, $00, $00, $00, $44, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $88, $00, $41, $11, $14, $00, $00, $00, $44, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $88, $00, $00, $00, $44, $00, $00, $00, $44, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $88, $22, $22, $22, $42, $00, $00, $00, $44, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $88, $00, $00, $00, $00, $00, $00, $00, $44, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $88, $00, $00, $00, $00, $00, $00, $00, $44, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $88, $00, $00, $00, $00, $00, $00, $00, $41, $41, $11, $11, $11, $11, $11, $11, $11, $11, $11, $14
+    .byte $28, $22, $22, $22, $22, $22, $22, $22, $82, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
+    .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $81, $11, $44
+    .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $44
+    .byte $00, $00, $00, $00, $00, $00, $00, $00, $28, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $42
 
 UpdateMovement:
     ; Though the game is animating the movement to each tile
@@ -74,6 +74,7 @@ MovementMapRow:
     LDY #$00
     LDA #$20
     STA sprite_y
+    STZ sprite_y+1
 MovementMapRowLoop:
     CPY grid_pos_y
     BEQ MovementMapCol
@@ -101,6 +102,7 @@ MovementMapCol:
     LDX #$00
     LDA #$20
     STA sprite_x
+    STZ sprite_x+1
 MovementMapColLoop:
     CPX grid_pos_x
     BEQ LoadDirectionMoving
@@ -226,17 +228,18 @@ UpdateGridPositionCommit:
     LDA (dst_pointer)
     ADC grid_pos_update_amount
     STA (dst_pointer)
-    LDA (dst_pointer)+1
-    ADC grid_pos_update_amount+1
-    STA (dst_pointer)+1
-    
+
+    PHY
+    LDY #$00
     CLC
-    LDA (src_pointer)
+    LDA (src_pointer),y
     ADC sprite_update_amount
-    STA (src_pointer)
-    LDA (src_pointer)+1
+    STA (src_pointer),y
+    INY
+    LDA (src_pointer),y
     ADC sprite_update_amount+1
-    STA (src_pointer)+1
+    STA (src_pointer),y
+    PLY
 
     CLC ; Move direction_moving_pointer based on direction_moving_update_amount
     LDA direction_moving_pointer
@@ -320,13 +323,15 @@ LoadCellLoop:
     BRA LoadCellLoop
 
 LoadCellCommit:
+    LDY #$00
     CLC
-    LDA (src_pointer)
+    LDA (src_pointer),y
     ADC sprite_update_amount
-    STA (src_pointer)
-    LDA (src_pointer)+1
+    STA (src_pointer),y
+    INY
+    LDA (src_pointer),y
     ADC sprite_update_amount+1
-    STA (src_pointer)+1
+    STA (src_pointer),y
 
     CLC ; Move direction_moving_pointer based on direction_moving_update_amount
     LDA direction_moving_pointer
@@ -384,14 +389,26 @@ AnimateSpriteX
     LDA sprite_x+1
     STA (dst_pointer),y
 
+    ; SPX_Y_H must always be zero, so we're going to be on the very edge of SPX_Y_L to use the last row
+    LDA sprite_y+1
+    CMP #$01
+    BNE LoadSpriteY
+
+    INY
+    LDA #$FF
+    STA (dst_pointer),y
+    JMP NextSprite
+
+LoadSpriteY:
     INY
     LDA sprite_y
     STA (dst_pointer),y
 
-    INY
-    LDA sprite_y+1
-    STA (dst_pointer),y
+    ;INY
+    ;LDA sprite_y+1
+    ;STA (dst_pointer),y
 
+NextSprite:
     CLC
     LDA dst_pointer
     ADC #$08
@@ -484,14 +501,16 @@ DisplacementLoop:
 
     BRA DisplacementLoop
 
-DisplacementCommit:    
+DisplacementCommit:
+    LDY #$00
     CLC
-    LDA (src_pointer)
+    LDA (src_pointer),y
     ADC sprite_update_amount
-    STA (src_pointer)
-    LDA (src_pointer)+1
+    STA (src_pointer),y
+    INY
+    LDA (src_pointer),y
     ADC sprite_update_amount+1
-    STA (src_pointer)+1
+    STA (src_pointer),y
 
     PLY
     PLX

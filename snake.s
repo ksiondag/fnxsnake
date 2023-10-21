@@ -55,7 +55,8 @@ Lock
     JSR UpdateMovement
     JSR AnimateMovement
     ; CheckCollision either ends with reset or falls back into lock from above
-    JMP CheckCollision
+    ;JMP CheckCollision
+    JMP CommitPositions
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

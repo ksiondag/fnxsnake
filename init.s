@@ -127,7 +127,7 @@ MAIN
     LDA #>VKY_GR_CLUT_0
     STA dst_pointer+1
 
-    LDA #$08
+    LDA #$40
     STA snake_length
 
 	JSR color_start
@@ -161,16 +161,17 @@ MAIN
     STZ displacement+1
     LDA #$01
     STA vel+1
-    LDA #$80
+    LDA #$00
     STA vel
 
     STZ direction_press
     LDA #$10
     STA direction_moving
 
-    LDA #$00
+    LDA #$13
     STA grid_pos_x
-    STZ grid_pos_y
+    LDA #$0E
+    STA grid_pos_y
 
 	JMP Lock
 
