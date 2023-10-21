@@ -23,9 +23,6 @@ direction_press = $40
 ; Current direction, next direction tracking
 direction_moving = $41
 
-; Next update movement counter
-next_update_movement = $42
-
 ; Position as grid (to save history of movement in 2d array)
 grid_pos_x = $44
 grid_pos_y = $45

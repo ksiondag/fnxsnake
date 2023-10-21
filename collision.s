@@ -40,7 +40,7 @@ CheckLeft
 CommitPositions
     ; Reset frame counter
     setaxs
-    LDA #3
+    LDA #1
     STA frame_counter
 
     .as

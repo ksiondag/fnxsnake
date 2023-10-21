@@ -34,25 +34,25 @@ UpdateMovement:
     ; This loads various information where we need it regardless of branch taken below
     JSR MovementSrcPointer
 
-    ; Check if time to update movement
-    LDA next_update_movement
-    CMP #$07
-    BNE IncrementMovement
+    ; Check if time to update grid position
+    JSR IncrementMovement
+    LDA displacement+1
+    CMP #$10
+    BGE NextGridPosition
+    RTS
 
+NextGridPosition
     JSR UpdateGridPosition
-    STZ next_update_movement
-    STZ displacement
-    STZ displacement+1
+    SEC
+    LDA displacement+1
+    SBC #$10
+    STA displacement+1
     RTS
 
 IncrementMovement:
     ; TODO: Displacement is all I need to know
     ; If above #$0F, then we've gone to next grid
     ; This also handles the non-power-of-two problem
-    LDA next_update_movement
-    CLC
-    ADC #$01
-    STA next_update_movement
     LDA displacement
     CLC
     ADC vel
@@ -422,10 +422,9 @@ DoneAnimateMovement
     RTS
 
 LoadDisplacement
-    LDA displacement
-    STA sprite_update_amount
     LDA displacement+1
-    STA sprite_update_amount+1
+    STA sprite_update_amount
+    STZ sprite_update_amount+1
     RTS
 AddDisplacement
     JSR LoadDisplacement
