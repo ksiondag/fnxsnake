@@ -40,7 +40,8 @@ UpdateMovement:
     BNE IncrementMovement
 
     JSR UpdateGridPosition
-    JMP CheckLeftMovement
+    STZ next_update_movement
+    RTS
 
 IncrementMovement:
     ; TODO: Displacement is all I need to know
@@ -141,6 +142,16 @@ UpdateGridPosition:
     STA grid_pos_update_amount
     STZ grid_pos_update_amount+1
 
+    ; Second, point to sprite_x
+    LDA #<sprite_x
+    STA src_pointer
+    LDA #>sprite_x
+    STA src_pointer+1
+
+    LDA #$10
+    STA sprite_update_amount
+    STZ sprite_update_amount+1
+
     LDA #$01
     STA direction_moving_update_amount
     STZ direction_moving_update_amount+1
@@ -158,10 +169,16 @@ UpdateGridPositionLoop:
     LSR
     TAX
 
-    ; Negate grid_pos_update_amount, direction_moving_update_amount    
+    ; Negate grid_pos_update_amount, sprite_update_amount, direction_moving_update_amount    
     LDA #<grid_pos_update_amount
     STA negate_pointer
     LDA #>grid_pos_update_amount
+    STA negate_pointer+1
+    JSR NegatePointerInStack
+
+    LDA #<sprite_update_amount
+    STA negate_pointer
+    LDA #>sprite_update_amount
     STA negate_pointer+1
     JSR NegatePointerInStack
     
@@ -183,6 +200,14 @@ UpdateGridPositionLoop:
     LDA dst_pointer+1
     ADC #$00
     STA dst_pointer+1
+    
+    CLC
+    LDA src_pointer
+    ADC #$02
+    STA src_pointer
+    LDA src_pointer+1
+    ADC #$00
+    STA src_pointer+1
 
     LDA #$14
     STA direction_moving_update_amount
@@ -202,6 +227,14 @@ UpdateGridPositionCommit:
     LDA (dst_pointer)+1
     ADC grid_pos_update_amount+1
     STA (dst_pointer)+1
+    
+    CLC
+    LDA (src_pointer)
+    ADC sprite_update_amount
+    STA (src_pointer)
+    LDA (src_pointer)+1
+    ADC sprite_update_amount+1
+    STA (src_pointer)+1
 
     CLC ; Move direction_moving_pointer based on direction_moving_update_amount
     LDA direction_moving_pointer
@@ -216,6 +249,17 @@ UpdateGridPositionCommit:
 LoadLastCell
     PHY
     PHX
+    ; First, point to sprite_x
+    LDA #<sprite_x
+    STA src_pointer
+    LDA #>sprite_x
+    STA src_pointer+1
+
+    LDA #$F0
+    STA sprite_update_amount
+    LDA #$FF
+    STA sprite_update_amount+1
+
     ; Using direction_moving_update_amount for direction_moving_pointer update amount
     LDA #$FF
     STA direction_moving_update_amount
@@ -239,6 +283,13 @@ LoadCellLoop:
     LSR
     TAX
 
+    ; Negate grid_pos_update_amount, direction_moving_update_amount    
+    LDA #<sprite_update_amount
+    STA negate_pointer
+    LDA #>sprite_update_amount
+    STA negate_pointer+1
+    JSR NegatePointerInStack
+
     ; Negate direction_moving_update_amount        
     LDA #<direction_moving_update_amount
     STA negate_pointer
@@ -246,10 +297,18 @@ LoadCellLoop:
     STA negate_pointer+1
     JSR NegatePointerInStack
 
-    ; Check to switch dst_pointer, direction_moving_update_amount to y-axis
+    ; Check to switch src_pointer, direction_moving_update_amount to y-axis
     INY
     CPY #$02
     BNE LoadCellLoop
+
+    CLC
+    LDA src_pointer
+    ADC #$02
+    STA src_pointer
+    LDA src_pointer+1
+    ADC #$00
+    STA src_pointer+1
 
     LDA #$EC
     STA direction_moving_update_amount
@@ -259,8 +318,14 @@ LoadCellLoop:
     BRA LoadCellLoop
 
 LoadCellCommit:
-    ; X,Y need to maintain grid position
-    ; direction_moving_pointer has been properly updated above
+    CLC
+    LDA (src_pointer)
+    ADC sprite_update_amount
+    STA (src_pointer)
+    LDA (src_pointer)+1
+    ADC sprite_update_amount+1
+    STA (src_pointer)+1
+
     CLC ; Move direction_moving_pointer based on direction_moving_update_amount
     LDA direction_moving_pointer
     ADC direction_moving_update_amount
@@ -274,92 +339,6 @@ LoadCellCommit:
 
     RTS
 
-CheckLeftMovement:
-    LDA direction_moving_pointer
-    PHA
-    LDA direction_moving_pointer+1
-    PHA
-    JSR LoadLastCell
-
-    LDA (direction_moving_pointer)
-    AND #$0F
-    CMP #$02
-    BNE CheckUpMovement
-
-    ;LDA #$20
-    ;STA (direction_moving_pointer)
-
-    LDA #$FE
-    STA vel
-    LDA #$FF
-    STA vel+1
-    STZ displacement
-    STZ displacement+1
-    JMP DoneCheckMovement
-
-CheckUpMovement:
-    LDA (direction_moving_pointer)
-    AND #$0F
-    CMP #$08
-    BNE CheckRightMovement
-
-    ;LDA #$80
-    ;STA (direction_moving_pointer)
-
-    LDA #$FE
-    STA displacement
-    LDA #$FF
-    STA displacement+1
-    LDA #$00
-    STA vel
-    STA vel+1
-    JMP DoneCheckMovement
-
-CheckRightMovement:
-    LDA (direction_moving_pointer)
-    AND #$0F
-    CMP #$01
-    BNE CheckDownMovement
-
-    ;LDA #$10
-    ;STA (direction_moving_pointer)
-
-    LDA #$2
-    STA vel
-    LDA #$00
-    STA vel+1
-    LDA #$00
-    STA displacement
-    STA displacement+1
-    JMP DoneCheckMovement
-
-CheckDownMovement:
-    LDA (direction_moving_pointer)
-    AND #$0F
-    CMP #$04
-    BNE DoneCheckMovement
-
-    ;LDA #$40
-    ;STA (direction_moving_pointer)
-
-    LDA #$2
-    STA displacement
-    LDA #$00
-    STA displacement+1
-    LDA #$00
-    STA vel
-    STA vel+1
-    JMP DoneCheckMovement
-
-DoneCheckMovement:
-    PLA
-    STA direction_moving_pointer+1
-    PLA
-    STA direction_moving_pointer
-
-    STZ next_update_movement
-    RTS
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 AnimateMovement:
@@ -370,6 +349,11 @@ AnimateMovement:
     STA dst_pointer
     LDA #$D9
     STA dst_pointer+1
+
+    LDA direction_moving_pointer
+    PHA
+    LDA direction_moving_pointer+1
+    PHA
 
     LDA sprite_x
     PHA
@@ -386,6 +370,7 @@ AnimateSpriteX
     CPX #$02
     BEQ DoneAnimateMovement
     INX
+    JSR LoadLastCell
 
     ; Commit sprite positions
     LDY #$04
@@ -423,6 +408,11 @@ DoneAnimateMovement
     STA sprite_x+1
     PLA
     STA sprite_x
+
+    PLA
+    STA direction_moving_pointer+1
+    PLA
+    STA direction_moving_pointer
 
     RTS
 
