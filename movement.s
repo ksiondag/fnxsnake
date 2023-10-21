@@ -369,7 +369,7 @@ AnimateMovement:
     LDX #$00
 
 AnimateSpriteX
-    CPX #$02
+    CPX snake_length
     BEQ DoneAnimateMovement
     INX
     JSR LoadLastCell

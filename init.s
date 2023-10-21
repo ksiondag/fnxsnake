@@ -127,6 +127,9 @@ MAIN
     LDA #>VKY_GR_CLUT_0
     STA dst_pointer+1
 
+    LDA #$08
+    STA snake_length
+
 	JSR color_start
 	JSR setup_sprites
 
@@ -168,9 +171,6 @@ MAIN
 
     STZ grid_pos_x
     STZ grid_pos_y
-
-    LDA #$02
-    STA snake_length
 
 	JMP Lock
 
@@ -230,7 +230,7 @@ setup_sprites:
     LDX #$00
 
 setup_sprite:
-    CPX #$02
+    CPX snake_length
     BEQ done_setup_sprite
     ; Point sprite x to the pixel data, set its location in screen, and enable the sprite
     LDY #$00
