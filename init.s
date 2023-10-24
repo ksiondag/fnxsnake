@@ -159,9 +159,9 @@ MAIN
 
     STZ displacement
     STZ displacement+1
-    LDA #$01
+    LDA #$02
     STA vel+1
-    LDA #$40
+    LDA #$80
     STA vel
 
     STZ direction_press
