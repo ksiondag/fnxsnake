@@ -405,7 +405,8 @@ AnimateSpriteX
     LDA sprite_x+1
     STA (dst_pointer),y
 
-    ; SPX_Y_H must always be zero, so we're going to be on the very edge of SPX_Y_L to use the last row
+    ; In emulator, SPX_Y_H must always be zero, so we're going to be on the very edge of SPX_Y_L to use the last row
+    ; Comment this code out when developing directly on hardware
     LDA sprite_y+1
     CMP #$01
     BNE LoadSpriteY
@@ -420,9 +421,9 @@ LoadSpriteY:
     LDA sprite_y
     STA (dst_pointer),y
 
-    ;INY
-    ;LDA sprite_y+1
-    ;STA (dst_pointer),y
+    INY
+    LDA sprite_y+1
+    STA (dst_pointer),y
 
 NextSprite:
     CLC
