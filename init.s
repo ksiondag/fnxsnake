@@ -127,7 +127,7 @@ MAIN
     LDA #>VKY_GR_CLUT_0
     STA dst_pointer+1
 
-    LDA #$40
+    LDA #$20
     STA snake_length
 
 	JSR color_start
@@ -221,17 +221,16 @@ setup_sprites:
     LDA #$D9
     STA src_pointer+1
 
-    LDA #$20
-    STA sprite_x
+    ; Sprites will start off loaded off-screen
+    STZ sprite_x
     STZ sprite_x+1
-    LDA #$20
-    STA sprite_y
+    STZ sprite_y
     STZ sprite_y+1
 
     LDX #$00
 
 setup_sprite:
-    CPX snake_length
+    CPX #$40
     BEQ done_setup_sprite
     ; Point sprite x to the pixel data, set its location in screen, and enable the sprite
     LDY #$00
