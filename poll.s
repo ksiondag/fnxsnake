@@ -25,15 +25,15 @@ CheckLeftPressed
     BNE CheckUpArrow
 
     ; Only set next direction to left if current direction is not left or right
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$30
     CMP #$00
     BNE CheckUpArrow
 
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$F0
     ORA #$02
-    STA direction_moving
+    STA (direction_moving_pointer)
     
     LDA direction_press
     ORA #$20
@@ -61,15 +61,15 @@ CheckUpPressed
     BNE CheckRightArrow
 
     ; Only set next direction to up if current direction is not up or down
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$C0
     CMP #$00
     BNE CheckRightArrow
 
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$F0
     ORA #$08
-    STA direction_moving
+    STA (direction_moving_pointer)
     
     LDA direction_press
     ORA #$80
@@ -98,15 +98,15 @@ CheckRightPressed
     BNE CheckDownArrow
 
     ; Only set next direction to left if current direction is not left or right
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$30
     CMP #$00
     BNE CheckDownArrow
 
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$F0
     ORA #$01
-    STA direction_moving
+    STA (direction_moving_pointer)
     
     LDA direction_press
     ORA #$10
@@ -135,15 +135,15 @@ CheckDownPressed
     BNE DoneCheckInput
 
     ; Only set next direction to up if current direction is not up or down
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$C0
     CMP #$00
     BNE DoneCheckInput
 
-    LDA direction_moving
+    LDA (direction_moving_pointer)
     AND #$F0
     ORA #$04
-    STA direction_moving
+    STA (direction_moving_pointer)
     
     LDA direction_press
     ORA #$40

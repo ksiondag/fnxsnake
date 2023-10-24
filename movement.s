@@ -219,11 +219,6 @@ UpdateGridPositionLoop:
     BRA UpdateGridPositionLoop
 
 UpdateGridPositionCommit:
-    ; X,Y need to maintain grid position
-    ; direction_moving_pointer has been properly updated above
-    LDX grid_pos_x
-    LDY grid_pos_y
-
     CLC
     LDA (dst_pointer)
     ADC grid_pos_update_amount
@@ -241,6 +236,9 @@ UpdateGridPositionCommit:
     STA (src_pointer),y
     PLY
 
+    LDA (direction_moving_pointer)
+    PHA
+
     CLC ; Move direction_moving_pointer based on direction_moving_update_amount
     LDA direction_moving_pointer
     ADC direction_moving_update_amount
@@ -248,6 +246,24 @@ UpdateGridPositionCommit:
     LDA direction_moving_pointer+1
     ADC direction_moving_update_amount+1
     STA direction_moving_pointer+1
+
+    LDA #$00
+    STA (direction_moving_pointer)
+    PLA
+    AND #$0F
+    STA (direction_moving_pointer)
+    ASL
+    ASL
+    ASL
+    ASL
+    CLC
+    ORA (direction_moving_pointer)
+    STA (direction_moving_pointer)
+
+    ; X,Y need to maintain grid position
+    ; direction_moving_pointer has been properly updated above
+    LDX grid_pos_x
+    LDY grid_pos_y
 
     RTS
 

@@ -48,7 +48,7 @@ direction_moving_update_amount = $4E
 .include "collision.s"
 
 Lock
-    ;JSR Poll
+    JSR Poll
     LDA frame_counter
     BNE Lock
 

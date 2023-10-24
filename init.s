@@ -161,14 +161,14 @@ MAIN
     STZ displacement+1
     LDA #$01
     STA vel+1
-    LDA #$80
+    LDA #$40
     STA vel
 
     STZ direction_press
     LDA #$10
     STA direction_moving
 
-    LDA #$00
+    LDA #$01
     STA grid_pos_x
     LDA #$00
     STA grid_pos_y
