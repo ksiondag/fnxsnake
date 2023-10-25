@@ -60,13 +60,10 @@ Lock
 
     LDA is_dead
     CMP #$01
-    BEQ OhNoesAmDead
+    BEQ Reset
 
     ; CheckCollision either ends with reset or falls back into lock from above
     JMP CheckCollision
-
-OhNoesAmDead
-    JMP Reset
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
