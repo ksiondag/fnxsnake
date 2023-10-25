@@ -23,6 +23,9 @@ direction_press = $40
 ; Current direction, next direction tracking
 direction_moving = $41
 
+; Track if dead
+is_dead = $42
+
 ; Position as grid (to save history of movement in 2d array)
 grid_pos_x = $44
 grid_pos_y = $45
@@ -54,8 +57,16 @@ Lock
 
     JSR UpdateMovement
     JSR AnimateMovement
+
+    LDA is_dead
+    CMP #$01
+    BEQ OhNoesAmDead
+
     ; CheckCollision either ends with reset or falls back into lock from above
     JMP CheckCollision
+
+OhNoesAmDead
+    JMP Reset
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

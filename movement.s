@@ -270,7 +270,23 @@ UpdateGridPositionCommit:
 LoadLastCell
     PHY
     PHX
-    ; First, point to sprite_x
+
+    LDA dst_pointer
+    PHA
+    LDA dst_pointer+1
+    PHA
+
+    ; Point to grid_pos_x
+    LDA #<grid_pos_x
+    STA dst_pointer
+    LDA #>grid_pos_x
+    STA dst_pointer+1
+
+    LDA #$FF
+    STA grid_pos_update_amount
+    STZ grid_pos_update_amount+1
+
+    ; Point to sprite_x
     LDA #<sprite_x
     STA src_pointer
     LDA #>sprite_x
@@ -304,7 +320,14 @@ LoadCellLoop:
     LSR
     TAX
 
-    ; Negate grid_pos_update_amount, direction_moving_update_amount    
+    ; Negate grid_pos_update_amount  
+    LDA #<grid_pos_update_amount
+    STA negate_pointer
+    LDA #>grid_pos_update_amount
+    STA negate_pointer+1
+    JSR NegatePointerInStack
+  
+    ; Negate direction_moving_update_amount  
     LDA #<sprite_update_amount
     STA negate_pointer
     LDA #>sprite_update_amount
@@ -324,6 +347,14 @@ LoadCellLoop:
     BNE LoadCellLoop
 
     CLC
+    LDA dst_pointer
+    ADC #$01
+    STA dst_pointer
+    LDA dst_pointer+1
+    ADC #$00
+    STA dst_pointer+1
+
+    CLC
     LDA src_pointer
     ADC #$02
     STA src_pointer
@@ -339,6 +370,11 @@ LoadCellLoop:
     BRA LoadCellLoop
 
 LoadCellCommit:
+    CLC
+    LDA (dst_pointer)
+    ADC grid_pos_update_amount
+    STA (dst_pointer)
+
     LDY #$00
     CLC
     LDA (src_pointer),y
@@ -356,6 +392,11 @@ LoadCellCommit:
     LDA direction_moving_pointer+1
     ADC direction_moving_update_amount+1
     STA direction_moving_pointer+1
+
+    PLA
+    STA dst_pointer+1
+    PLA
+    STA dst_pointer
 
     PLX
     PLY
@@ -387,6 +428,14 @@ AnimateMovement:
     LDA sprite_y+1
     PHA
 
+    LDA grid_pos_x
+    PHA
+    LDA grid_pos_y
+    PHA
+
+    PHX
+    PHY
+
     LDX #$00
 
 AnimateSpriteX
@@ -394,6 +443,45 @@ AnimateSpriteX
     BEQ DoneAnimateMovement
     INX
     JSR LoadLastCell
+    ; TODO: Right here is the best time to see if the head of our snake
+    ; is going to collide with the current part of the snake
+    ; grid_pos_x and grid_pos_y are the current loop position
+    ; The next two items on the stack is the head's Y position, then X position respectively
+    ; We currently don't care about the accumulator value or the Y value, so again perfect timing
+
+    ; Put head grid Y position from stack into Y
+    PLY
+
+    ; Put head grid X position from stack into accumulator
+    PLA
+
+    ; Push current X onto stack
+    PHX
+
+    ; Put grid X position of head into X (we need accumulator for comparison checks)
+    TAX
+
+    CPX grid_pos_x
+    BNE ContinueRenderingSprite
+
+    CPY grid_pos_y
+    BNE ContinueRenderingSprite
+
+    ; If we've gotten this far, the head of the snake has the current ball, save information
+    LDA #$01
+    STA is_dead
+
+ContinueRenderingSprite:
+    ; Put grid X position back into accumulator
+    TXA
+
+    ; Set X back to current sprite being rendered
+    PLX
+
+    ; Put values back onto stack
+    PHA
+    PHY
+
     JSR AddDisplacement
 
     ; Commit sprite positions
@@ -439,6 +527,14 @@ NextSprite:
     BRA AnimateSpriteX
 
 DoneAnimateMovement
+    PLY
+    PLX
+
+    PLA
+    STA grid_pos_y
+    PLA
+    STA grid_pos_x
+
     PLA
     STA sprite_y+1
     PLA

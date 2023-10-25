@@ -173,6 +173,8 @@ MAIN
     LDA #$00
     STA grid_pos_y
 
+    STZ is_dead
+
 	JMP Lock
 
 color_start:
