@@ -441,9 +441,11 @@ AnimateMovement:
 AnimateSpriteX
     CPX snake_length
     BEQ DoneAnimateMovement
-    INX
     JSR LoadLastCell
-    ; TODO: Right here is the best time to see if the head of our snake
+    JSR AppleCollisionCheck
+    INX
+
+    ; Right here is the best time to see if the head of our snake
     ; is going to collide with the current part of the snake
     ; grid_pos_x and grid_pos_y are the current loop position
     ; The next two items on the stack is the head's Y position, then X position respectively

@@ -5,6 +5,7 @@
 .include "includes/f256jr_registers.asm"
 .include "includes/f256k_registers.asm"
 .include "includes/f256_tiles.asm"
+.include "includes/random.asm"
 .include "includes/macros.s"
 
 dst_pointer = $30
@@ -38,6 +39,11 @@ negate_pointer = $4A
 direction_moving_pointer = $4C
 direction_moving_update_amount = $4E
 
+; Apple data
+apple_present = $50
+apple_pos_x = $51
+apple_pos_y = $52
+
 ; Code
 * = $000000 
         .byte 0
@@ -48,6 +54,7 @@ direction_moving_update_amount = $4E
 .include "init.s"
 .include "poll.s"
 .include "movement.s"
+.include "apple.s"
 .include "collision.s"
 
 Lock
@@ -55,8 +62,10 @@ Lock
     LDA frame_counter
     BNE Lock
 
+    JSR PlaceApple
     JSR UpdateMovement
     JSR AnimateMovement
+    JSR RenderApple
 
     LDA is_dead
     CMP #$01

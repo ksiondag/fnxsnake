@@ -127,7 +127,7 @@ MAIN
     LDA #>VKY_GR_CLUT_0
     STA dst_pointer+1
 
-    LDA #$20
+    LDA #$01
     STA snake_length
 
 	JSR color_start
@@ -174,6 +174,11 @@ MAIN
     STA grid_pos_y
 
     STZ is_dead
+    STZ apple_present
+
+    ; Enable random number generator
+    LDA #$01
+    STA RND_CTRL
 
 	JMP Lock
 
