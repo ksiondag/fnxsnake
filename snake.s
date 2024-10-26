@@ -1,4 +1,4 @@
-.cpu "65816"                        ; Tell 64TASS that we are using a 65816
+.cpu "65c02"                        ; Tell 64TASS that we are using a 65816
 
 .include "includes/TinyVicky_Def.asm"
 .include "includes/interrupt_def.asm"

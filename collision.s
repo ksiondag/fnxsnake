@@ -1,50 +1,51 @@
 Reset
-    .as
-    .xs
-    REP #$20
-    SEC
-    XCE
 	JMP MAIN
 
 CheckCollision
-    ; Use 816 mode
     CLC
-    XCE
-    
-    setaxs
-    setaxl
-CheckBottom
-    LDA sprite_y
-    CMP #$0101
+
+CheckBottom                 ; Check if ran into bottom of screen
+    LDA sprite_y            ; If sprite_y < #$0101, we have not
+    CMP #$01
+    BMI CheckRight
+
+    LDA sprite_y+1
+    CMP #$01
     BMI CheckRight
     BRA Reset
 
-CheckRight
-    LDA sprite_x
-    CMP #$0151
+CheckRight                  ; Check if ran into right of screen
+    LDA sprite_x            ; If sprite_x < #$0151, we have not
+    CMP #$51
+    BMI CheckTop
+
+    LDA sprite_x+1
+    CMP #$01
     BMI CheckTop
     BRA Reset
 
-CheckTop
-    LDA sprite_y
-    CMP #$0020
+CheckTop                    ; Check if ran into top of screen
+    LDA sprite_y            ; If sprite_y > #$0020, we have not
+    CMP #$20
+    BPL CheckLeft
+
+    LDA sprite_y+1
+    CMP #$00
     BPL CheckLeft
     BRA Reset
 
 CheckLeft
     LDA sprite_x
-    CMP #$0020
+    CMP #$20
     BPL CommitPositions
+
+    LDA sprite_x+1
+    CMP #$00
+    BPL CommitPositions
+
     BRA Reset
 
 CommitPositions
     ; Reset frame counter
-    setaxs
     LDA #1
     STA frame_counter
-
-    .as
-    .xs
-    REP #$20
-    SEC
-    XCE
