@@ -61,8 +61,6 @@ apple_pos_y .byte ?
 .send
 
 * = $4000
-.logical $4000
-
 .include "init.s"
 .include "poll.s"
 .include "movement.s"
@@ -162,11 +160,8 @@ IRQ_Handler_Done
 .include "assets/tiles/image.s"
 .include "assets/tiles/map.s"
 
-.endlogical
-
 ; Write the system vectors
 * = $00FFF8
-.logical $FFF8
 .byte $00
 F256_DUMMYIRQ       ; Abort vector
     RTI
@@ -174,4 +169,3 @@ F256_DUMMYIRQ       ; Abort vector
 .word F256_DUMMYIRQ ; nmi
 .word F256_RESET    ; reset
 .word F256_DUMMYIRQ ; irq
-.endlogical
