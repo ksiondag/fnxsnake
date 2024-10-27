@@ -9,6 +9,8 @@
 ; (1) 0001 means right
 ; 44 means came facing down (from above); leaving facing down
 ; 82 means came facing up (from below); leaving facing left
+buffer_before_map:
+    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 movement_map:
     .byte $81, $11, $11, $11, $11, $11, $11, $11, $11, $14, $11, $11, $11, $11, $11, $11, $11, $11, $11, $14
     .byte $88, $00, $44, $00, $00, $00, $00, $00, $44, $44, $00, $00, $00, $00, $00, $00, $00, $00, $00, $44
@@ -25,6 +27,8 @@ movement_map:
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $81, $11, $44
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $44
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $28, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $42
+buffer_after_map:
+    .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 .send
 
 UpdateMovement:
@@ -225,6 +229,9 @@ UpdateGridPositionCommit:
     LDA (dst_pointer)
     ADC grid_pos_update_amount
     STA (dst_pointer)
+
+    LDA grid_pos_x
+    LDA grid_pos_y
 
     PHY
     LDY #$00
