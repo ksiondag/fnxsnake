@@ -155,7 +155,7 @@ MAIN
     ; Switch to I/O page 0
     STZ MMU_IO_CTRL
 
-    STZ frame_counter
+    STZ frame
 
     STZ displacement
     STZ displacement+1

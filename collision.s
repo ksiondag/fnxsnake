@@ -48,4 +48,4 @@ CheckLeft
 CommitPositions
     ; Reset frame counter
     LDA #1
-    STA frame_counter
+    STA frame

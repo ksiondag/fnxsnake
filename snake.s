@@ -23,12 +23,13 @@ mmu         .fill       8
 .section dp
 ; Something breaks when I try to dynamically allocate these variables
 ; So directly setting where they are
+frame .byte ?
+
 dst_pointer .word ?
 src_pointer .word ?
 sprite_x .word ?
 sprite_y .word ?
 sprite_update_amount .word ?
-frame_counter .word ?
 
 displacement .word ?
 vel .word ?
@@ -60,7 +61,7 @@ apple_pos_x .byte ?
 apple_pos_y .byte ?
 .send
 
-* = $4000
+* = $2000
 .include "init.s"
 .include "poll.s"
 .include "movement.s"
@@ -69,7 +70,7 @@ apple_pos_y .byte ?
 
 Lock
     JSR Poll
-    LDA frame_counter
+    LDA frame
     BNE Lock
 
     JSR PlaceApple
@@ -135,9 +136,9 @@ IRQ_Handler
     ; Clear the flag for start-of-frame
     STA INT_PENDING_REG0    
 
-    LDA frame_counter
+    LDA frame
     BEQ AfterDecFrameCounter
-    DEC frame_counter
+    DEC frame
 
 AfterDecFrameCounter    
 
