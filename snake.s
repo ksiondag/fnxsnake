@@ -10,11 +10,17 @@
 
 ; Code
 * = $000000 
-        .byte 0
+mmu_ctrl    .byte       ?
+io_ctrl     .byte       ?
+reserved    .fill       6
+mmu         .fill       8
+            .dsection   dp
+            .cerror * > $00ff, "Out of dp space."
 
+* = $0200
 .dsection data
-.section data
-* = $30
+
+.section dp
 ; Something breaks when I try to dynamically allocate these variables
 ; So directly setting where they are
 dst_pointer .word ?

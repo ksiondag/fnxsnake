@@ -230,9 +230,6 @@ UpdateGridPositionCommit:
     ADC grid_pos_update_amount
     STA (dst_pointer)
 
-    LDA grid_pos_x
-    LDA grid_pos_y
-
     PHY
     LDY #$00
     CLC

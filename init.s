@@ -173,6 +173,12 @@ MAIN
     LDA #$00
     STA grid_pos_y
 
+    ; On death, need to make sure movement defaults right
+    PHY
+    LDY #$01
+    LDA #$11
+    STA movement_map,y
+
     STZ is_dead
     STZ apple_present
 
