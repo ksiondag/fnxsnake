@@ -8,45 +8,51 @@
 .include "includes/random.asm"
 .include "includes/macros.s"
 
-dst_pointer = $30
-src_pointer = $32
-sprite_x = $34
-sprite_y = $36
-sprite_update_amount = $38
-frame_counter = $3A
-
-displacement = $3C
-vel = $3E
-
-; Button up/down tracking
-direction_press = $40
-
-; Current direction, next direction tracking
-direction_moving = $41
-
-; Track if dead
-is_dead = $42
-
-; Position as grid (to save history of movement in 2d array)
-grid_pos_x = $44
-grid_pos_y = $45
-grid_pos_update_amount = $46
-
-snake_length = $48
-
-negate_pointer = $4A
-
-direction_moving_pointer = $4C
-direction_moving_update_amount = $4E
-
-; Apple data
-apple_present = $50
-apple_pos_x = $51
-apple_pos_y = $52
-
 ; Code
 * = $000000 
         .byte 0
+
+.dsection data
+.section data
+* = $30
+; Something breaks when I try to dynamically allocate these variables
+; So directly setting where they are
+dst_pointer .word ?
+src_pointer .word ?
+sprite_x .word ?
+sprite_y .word ?
+sprite_update_amount .word ?
+frame_counter .word ?
+
+displacement .word ?
+vel .word ?
+
+; Button up/down tracking
+direction_press .byte ?
+
+; Current direction, next direction tracking
+direction_moving .byte ?
+
+; Track if dead
+is_dead .word ?
+
+; Position as grid (to save history of movement in 2d array)
+grid_pos_x .byte ?
+grid_pos_y .byte ?
+grid_pos_update_amount .word ?
+
+snake_length .word ?
+
+negate_pointer .word ?
+
+direction_moving_pointer .word ?
+direction_moving_update_amount .word ?
+
+; Apple data
+apple_present .byte ?
+apple_pos_x .byte ?
+apple_pos_y .byte ?
+.send
 
 * = $4000
 .logical $4000

@@ -27,21 +27,21 @@ CheckRight                  ; Check if ran into right of screen
 CheckTop                    ; Check if ran into top of screen
     LDA sprite_y            ; If sprite_y > #$0020, we have not
     CMP #$20
-    BPL CheckLeft
+    BCS CheckLeft
 
     LDA sprite_y+1
     CMP #$00
-    BPL CheckLeft
+    BNE CheckLeft
     BRA Reset
 
 CheckLeft
     LDA sprite_x
     CMP #$20
-    BPL CommitPositions
+    BCS CommitPositions
 
     LDA sprite_x+1
     CMP #$00
-    BPL CommitPositions
+    BNE CommitPositions
 
     BRA Reset
 

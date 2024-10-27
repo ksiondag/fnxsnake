@@ -1,3 +1,4 @@
+.section data
 ; Keep track of each direction of movement, and where came from
 ; 0 means movement hasn't happened on that tile yet
 ; Left byte is direction facing on entering
@@ -24,6 +25,7 @@ movement_map:
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $81, $11, $44
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $00, $00, $00, $00, $00, $00, $00, $88, $00, $44
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $28, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $42
+.send
 
 UpdateMovement:
     ; Though the game is animating the movement to each tile
