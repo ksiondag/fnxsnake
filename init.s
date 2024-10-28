@@ -1,6 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 F256_RESET
+    STZ MMU_IO_CTRL
     CLC     ; disable interrupts
     SEI
     LDX #$FF
@@ -20,40 +21,40 @@ F256_RESET
 
 
     ; initialize mmu
-    STZ MMU_MEM_CTRL
-    LDA MMU_MEM_CTRL
-    ORA #MMU_EDIT_EN
+    ;STZ MMU_MEM_CTRL
+    ;LDA MMU_MEM_CTRL
+    ;ORA #MMU_EDIT_EN
 
     ; enable mmu edit, edit mmu lut 0, activate mmu lut 0
-    STA MMU_MEM_CTRL
-    STZ MMU_IO_CTRL
+    ;STA MMU_MEM_CTRL
+    ;STZ MMU_IO_CTRL
 
-    LDA #$00
-    STA MMU_MEM_BANK_0 ; map $000000 to bank 0
-    INA
-    STA MMU_MEM_BANK_1 ; map $002000 to bank 1
-    INA
-    STA MMU_MEM_BANK_2 ; map $004000 to bank 2
-    INA
-    STA MMU_MEM_BANK_3 ; map $006000 to bank 3
-    INA
-    STA MMU_MEM_BANK_4 ; map $008000 to bank 4
-    INA
-    STA MMU_MEM_BANK_5 ; map $00a000 to bank 5
-    INA
-    STA MMU_MEM_BANK_6 ; map $00c000 to bank 6
-    INA
-    STA MMU_MEM_BANK_7 ; map $00e000 to bank 7
-    LDA MMU_MEM_CTRL
-    AND #~(MMU_EDIT_EN)
-    STA MMU_MEM_CTRL  ; disable mmu edit, use mmu lut 0
+    ;LDA #$00
+    ;STA MMU_MEM_BANK_0 ; map $000000 to bank 0
+    ;INA
+    ;STA MMU_MEM_BANK_1 ; map $002000 to bank 1
+    ;INA
+    ;STA MMU_MEM_BANK_2 ; map $004000 to bank 2
+    ;INA
+    ;STA MMU_MEM_BANK_3 ; map $006000 to bank 3
+    ;INA
+    ;STA MMU_MEM_BANK_4 ; map $008000 to bank 4
+    ;INA
+    ;STA MMU_MEM_BANK_5 ; map $00a000 to bank 5
+    ;INA
+    ;STA MMU_MEM_BANK_6 ; map $00c000 to bank 6
+    ;INA
+    ;STA MMU_MEM_BANK_7 ; map $00e000 to bank 7
+    ;LDA MMU_MEM_CTRL
+    ;AND #~(MMU_EDIT_EN)
+    ;STA MMU_MEM_CTRL  ; disable mmu edit, use mmu lut 0
 
                         ; initialize interrupts
-    LDA #$FF            ; mask off all interrupts
-    STA INT_EDGE_REG0
-    STA INT_EDGE_REG1
-    STA INT_MASK_REG0
-    STA INT_MASK_REG1
+    ;LDA #$FF            ; mask off all interrupts
+    ;STA INT_EDGE_REG0
+    ;STA INT_EDGE_REG1
+    ;STA INT_MASK_REG0
+    ;STA INT_MASK_REG1
 
     LDA INT_PENDING_REG0 ; clear all existing interrupts
     STA INT_PENDING_REG0
@@ -66,10 +67,11 @@ F256_RESET
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 MAIN
-    LDA #MMU_EDIT_EN
-    STA MMU_MEM_CTRL
-    STZ MMU_IO_CTRL 
-    STZ MMU_MEM_CTRL    
+    JSR Init_EventHandler
+    ;LDA #MMU_EDIT_EN
+    ;STA MMU_MEM_CTRL
+    ;STZ MMU_IO_CTRL 
+    ;STZ MMU_MEM_CTRL    
     LDA #$34 ;(Mstr_Ctrl_Text_Mode_En|Mstr_Ctrl_Text_Overlay|Mstr_Ctrl_Graph_Mode_En|Mstr_Ctrl_Bitmap_En|Mstr_Ctrl_Sprite_En|Mstr_Ctrl_TileMap_En)
     STA @w MASTER_CTRL_REG_L 
     LDA #(Mstr_Ctrl_Text_XDouble|Mstr_Ctrl_Text_YDouble)
@@ -111,8 +113,6 @@ MAIN
     ;STZ TyVKY_BM1_CTRL_REG ; Make sure bitmap 1 is turned off
     ;STZ TyVKY_BM2_CTRL_REG ; Make sure bitmap 2 is turned off
     
-    JSR Init_IRQHandler
-
     ; Load sprite colors into CLUT
     LDA #$01 ; Switch to I/O Page #1
     STA MMU_IO_CTRL
@@ -154,8 +154,6 @@ MAIN
     
     ; Switch to I/O page 0
     STZ MMU_IO_CTRL
-
-    STZ frame
 
     STZ displacement
     STZ displacement+1
@@ -292,8 +290,6 @@ setup_sprite:
     BRA setup_sprite
 
 done_setup_sprite:
-    JSR Init_IRQHandler
-
     LDA #$02 ; Set I/O page to 2
     STA MMU_IO_CTRL
 

@@ -1,5 +1,11 @@
 Reset
-	JMP MAIN
+    JMP MAIN
+
+SetIsDead
+    LDA #$01
+    STA is_dead
+
+	JMP CommitPositions
 
 CheckCollision
     CLC
@@ -12,7 +18,7 @@ CheckBottom                 ; Check if ran into bottom of screen
     LDA sprite_y+1
     CMP #$01
     BMI CheckRight
-    BRA Reset
+    BRA SetIsDead
 
 CheckRight                  ; Check if ran into right of screen
     LDA sprite_x            ; If sprite_x < #$0151, we have not
@@ -22,7 +28,7 @@ CheckRight                  ; Check if ran into right of screen
     LDA sprite_x+1
     CMP #$01
     BMI CheckTop
-    BRA Reset
+    BRA SetIsDead
 
 CheckTop                    ; Check if ran into top of screen
     LDA sprite_y            ; If sprite_y > #$0020, we have not
@@ -32,7 +38,7 @@ CheckTop                    ; Check if ran into top of screen
     LDA sprite_y+1
     CMP #$00
     BNE CheckLeft
-    BRA Reset
+    BRA SetIsDead
 
 CheckLeft
     LDA sprite_x
@@ -43,9 +49,7 @@ CheckLeft
     CMP #$00
     BNE CommitPositions
 
-    BRA Reset
+    BRA SetIsDead
 
 CommitPositions
-    ; Reset frame counter
-    LDA #1
-    STA frame
+    RTS
