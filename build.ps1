@@ -7,4 +7,4 @@ if ($? -eq $false) {
 
 python .\make_pgz.py .\build\a
 
-& 'C:\Program Files\C256 Foenix Project\FoenixIDE\FoenixIDE.exe' -b f256k
+& 'C:\Program Files\C256 Foenix Project\FoenixIDE\FoenixIDE.exe' -b jr

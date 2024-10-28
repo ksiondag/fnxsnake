@@ -8,20 +8,20 @@ input_loop
     cmp     #kernel.event.key.PRESSED
     beq     _kbd
     cmp     #kernel.event.JOYSTICK
-    beq     joystick
+    beq     _joystick
     cmp     #kernel.event.timer.EXPIRED
     beq     _timer
     bra     input_loop
-_kbd
-    JSR KBD.Poll
-    bra input_loop
 _timer
     lda event.timer.cookie
     cmp #$EA
     bne input_loop
     rts
-joystick
+_joystick
     JSR JOY.Poll
+    bra input_loop
+_kbd
+    JSR KBD.Poll
     bra input_loop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
