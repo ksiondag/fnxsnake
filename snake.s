@@ -69,8 +69,7 @@ event .dstruct kernel.event.event_t
 
 * = $2000
 .include "init.s"
-.include "poll.s"
-.include "poll_kernel.s"
+.include "event_manager.s"
 .include "movement.s"
 .include "apple.s"
 .include "collision.s"
