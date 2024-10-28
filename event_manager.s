@@ -7,9 +7,11 @@ input_loop
     lda     event.type
     cmp     #kernel.event.key.PRESSED
     beq     _kbd
+    cmp     #kernel.event.JOYSTICK
+    beq     joystick
     cmp     #kernel.event.timer.EXPIRED
     beq     _timer
-    bne     input_loop
+    bra     input_loop
 _kbd
     JSR KBD.Poll
     bra input_loop
@@ -18,6 +20,9 @@ _timer
     cmp #$EA
     bne input_loop
     rts
+joystick
+    JSR JOY.Poll
+    bra input_loop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -43,6 +48,128 @@ timer_schedule
     rts
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+TRY_MOVE .namespace
+
+Left
+    ; Only set next direction to left if current direction is not left or right
+    LDA (direction_moving_pointer)
+    AND #$30
+    CMP #$00
+    BNE _done
+
+    LDA (direction_moving_pointer)
+    AND #$F0
+    ORA #$02
+    STA (direction_moving_pointer)
+    
+    LDA direction_press
+    ORA #$20
+    STA direction_press
+_done
+    RTS
+
+Up
+    ; Only set next direction to up if current direction is not up or down
+    LDA (direction_moving_pointer)
+    AND #$C0
+    CMP #$00
+    BNE _done
+
+    LDA (direction_moving_pointer)
+    AND #$F0
+    ORA #$08
+    STA (direction_moving_pointer)
+    
+    LDA direction_press
+    ORA #$80
+    STA direction_press
+_done
+    RTS
+
+Right
+    ; Only set next direction to left if current direction is not left or right
+    LDA (direction_moving_pointer)
+    AND #$30
+    CMP #$00
+    BNE _done
+
+    LDA (direction_moving_pointer)
+    AND #$F0
+    ORA #$01
+    STA (direction_moving_pointer)
+    
+    LDA direction_press
+    ORA #$10
+    STA direction_press
+_done
+    RTS
+
+Down
+    ; Only set next direction to up if current direction is not up or down
+    LDA (direction_moving_pointer)
+    AND #$C0
+    CMP #$00
+    BNE _done
+
+    LDA (direction_moving_pointer)
+    AND #$F0
+    ORA #$04
+    STA (direction_moving_pointer)
+    
+    LDA direction_press
+    ORA #$40
+    STA direction_press
+_done
+    RTS
+.endn
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+JOY .namespace
+
+UP    = 1
+DOWN  = 2
+LEFT  = 4
+RIGHT = 8
+
+Poll
+    PHX
+    LDA event.joystick.joy0+1
+    TAX
+CheckLeft
+    TXA
+    AND #LEFT
+    BEQ CheckUp
+    JSR TRY_MOVE.Left
+    JMP DoneCheckInput
+CheckUp
+    TXA
+    AND #UP
+    BEQ CheckRight
+    JSR TRY_MOVE.Up
+    JMP DoneCheckInput
+CheckRight
+    TXA
+    AND #RIGHT
+    BEQ CheckDown
+    JSR TRY_MOVE.Right
+    JMP DoneCheckInput
+CheckDown
+    TXA
+    AND #DOWN
+    BEQ DoneCheckInput
+    JSR TRY_MOVE.Down
+    JMP DoneCheckInput
+DoneCheckInput
+    PLX
+    RTS
+
+.endn
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 KBD .namespace
 
 ASCII_UP = 16
@@ -67,21 +194,7 @@ CheckLeftArrow
     bra CheckUpArrow
 
 TryMoveLeft
-    ; Only set next direction to left if current direction is not left or right
-    LDA (direction_moving_pointer)
-    AND #$30
-    CMP #$00
-    BNE CheckUpArrow
-
-    LDA (direction_moving_pointer)
-    AND #$F0
-    ORA #$02
-    STA (direction_moving_pointer)
-    
-    LDA direction_press
-    ORA #$20
-    STA direction_press
-
+    JSR TRY_MOVE.Left
     JMP DoneCheckInput
 
 CheckUpArrow
@@ -92,21 +205,7 @@ CheckUpArrow
     bra CheckRightArrow
 
 TryMoveUp
-    ; Only set next direction to up if current direction is not up or down
-    LDA (direction_moving_pointer)
-    AND #$C0
-    CMP #$00
-    BNE CheckRightArrow
-
-    LDA (direction_moving_pointer)
-    AND #$F0
-    ORA #$08
-    STA (direction_moving_pointer)
-    
-    LDA direction_press
-    ORA #$80
-    STA direction_press
-
+    JSR TRY_MOVE.Up
     JMP DoneCheckInput
 
 CheckRightArrow
@@ -117,21 +216,7 @@ CheckRightArrow
     bra CheckDownArrow
 
 TryMoveRight
-    ; Only set next direction to left if current direction is not left or right
-    LDA (direction_moving_pointer)
-    AND #$30
-    CMP #$00
-    BNE CheckDownArrow
-
-    LDA (direction_moving_pointer)
-    AND #$F0
-    ORA #$01
-    STA (direction_moving_pointer)
-    
-    LDA direction_press
-    ORA #$10
-    STA direction_press
-
+    JSR TRY_MOVE.Right
     JMP DoneCheckInput
 
 CheckDownArrow
@@ -142,21 +227,7 @@ CheckDownArrow
     bra DoneCheckInput
 
 TryMoveDown
-    ; Only set next direction to up if current direction is not up or down
-    LDA (direction_moving_pointer)
-    AND #$C0
-    CMP #$00
-    BNE DoneCheckInput
-
-    LDA (direction_moving_pointer)
-    AND #$F0
-    ORA #$04
-    STA (direction_moving_pointer)
-    
-    LDA direction_press
-    ORA #$40
-    STA direction_press
-
+    JSR TRY_MOVE.Down
     JMP DoneCheckInput
 
 DoneCheckInput
