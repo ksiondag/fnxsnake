@@ -1,3 +1,10 @@
+; Dummy callback which ends keyEventLoop and simpleKeyEventLoop
+dummyCallBack
+    clc
+    rts
+
+TIMER_VECTOR .word dummyCallBack
+
 input_loop
     bit     kernel.args.events.pending
 
@@ -16,7 +23,9 @@ _timer
     lda event.timer.cookie
     cmp #$EA
     bne input_loop
-    rts
+    JSR timer_callback
+    JSR timer_schedule
+    bra input_loop
 _joystick
     JSR JOY.Poll
     bra input_loop
@@ -46,6 +55,11 @@ timer_schedule
     sta kernel.args.timer.cookie
     jsr     kernel.Clock.SetTimer
     rts
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+timer_callback
+    jmp (TIMER_VECTOR)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

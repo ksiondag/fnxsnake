@@ -20,6 +20,7 @@ mmu         .fill       8
 
 * = $0200
 JMP F256_RESET
+
 .dsection data
 
 .section dp
@@ -67,15 +68,14 @@ apple_pos_y .byte ?
 event .dstruct kernel.event.event_t
 .send
 
-* = $2000
 .include "init.s"
-.include "event_manager.s"
+.include "game_engine/init.s"
 .include "movement.s"
 .include "apple.s"
 .include "collision.s"
 
-Lock
-    JSR input_loop
+LockTitle
+LockGame
     JSR PlaceApple
     JSR UpdateMovement
     JSR AnimateMovement
@@ -92,8 +92,7 @@ Lock
     CMP #$01
     BEQ Reset
 
-    JSR timer_schedule
-    BRA Lock
+    RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

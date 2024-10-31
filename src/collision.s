@@ -1,5 +1,6 @@
 Reset
-    JMP MAIN
+    #ngn.load16BitImmediate MAIN, ngn.TIMER_VECTOR
+    RTS
 
 SetIsDead
     LDA #$01

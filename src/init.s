@@ -61,17 +61,6 @@ F256_RESET
     LDA INT_PENDING_REG1
     STA INT_PENDING_REG1
 
-    CLI ; Enable interrupts
-    JMP MAIN
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-MAIN
-    JSR Init_EventHandler
-    ;LDA #MMU_EDIT_EN
-    ;STA MMU_MEM_CTRL
-    ;STZ MMU_IO_CTRL 
-    ;STZ MMU_MEM_CTRL    
     LDA #$34 ;(Mstr_Ctrl_Text_Mode_En|Mstr_Ctrl_Text_Overlay|Mstr_Ctrl_Graph_Mode_En|Mstr_Ctrl_Bitmap_En|Mstr_Ctrl_Sprite_En|Mstr_Ctrl_TileMap_En)
     STA @w MASTER_CTRL_REG_L 
     LDA #(Mstr_Ctrl_Text_XDouble|Mstr_Ctrl_Text_YDouble)
@@ -95,7 +84,7 @@ MAIN
     LDA VKY_TXT_CURSOR_CTRL_REG
     AND #$FE
     STA VKY_TXT_CURSOR_CTRL_REG
-    
+
     JSR ClearScreen
 
     ; Background: midnight blue
@@ -109,10 +98,20 @@ MAIN
     ; Turn off the border
     STZ VKY_BRDR_CTRL
 
-    ;STZ TyVKY_BM0_CTRL_REG ; Make sure bitmap 0 is turned off
-    ;STZ TyVKY_BM1_CTRL_REG ; Make sure bitmap 1 is turned off
-    ;STZ TyVKY_BM2_CTRL_REG ; Make sure bitmap 2 is turned off
-    
+    ; Enable random number generator
+    LDA #$01
+    STA RND_CTRL
+
+    JSR ngn.Init_EventHandler
+
+    CLI ; Enable interrupts
+    JSR MAIN
+    JMP ngn.input_loop
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MAIN    
+    #ngn.load16BitImmediate LockGame, ngn.TIMER_VECTOR 
+        
     ; Load sprite colors into CLUT
     LDA #$01 ; Switch to I/O Page #1
     STA MMU_IO_CTRL
@@ -176,15 +175,12 @@ MAIN
     LDY #$01
     LDA #$11
     STA movement_map,y
+    PLY
 
     STZ is_dead
     STZ apple_present
 
-    ; Enable random number generator
-    LDA #$01
-    STA RND_CTRL
-
-	JMP Lock
+    RTS
 
 color_start:
 	LDX #0
