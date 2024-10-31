@@ -1,4 +1,4 @@
-D:\64tass\64tass -b --m65c02 -o build/a --list=build/a.lst --labels=build/a.lbl snake.s
+D:\64tass\64tass -b --m65c02 -o build/a --list=build/a.lst --labels=build/a.lbl src/main.s
 
 if ($? -eq $false) {
     Write-Error "The first command failed. Exiting..."
@@ -7,4 +7,4 @@ if ($? -eq $false) {
 
 python .\make_pgz.py .\build\a
 
-& 'C:\Program Files\C256 Foenix Project\FoenixIDE\FoenixIDE.exe' -b jr
+& 'C:\Program Files\C256 Foenix Project\FoenixIDE\FoenixIDE.exe' -b f256k

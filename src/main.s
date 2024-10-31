@@ -1,13 +1,13 @@
 .cpu "65c02"                        ; Tell 64TASS that we are using a 65816
 
-.include "includes/TinyVicky_Def.asm"
-.include "includes/interrupt_def.asm"
-.include "includes/f256jr_registers.asm"
-.include "includes/f256k_registers.asm"
-.include "includes/f256_tiles.asm"
-.include "includes/random.asm"
-.include "includes/macros.s"
-.include "includes/api.asm"
+.include "../includes/TinyVicky_Def.asm"
+.include "../includes/interrupt_def.asm"
+.include "../includes/f256jr_registers.asm"
+.include "../includes/f256k_registers.asm"
+.include "../includes/f256_tiles.asm"
+.include "../includes/random.asm"
+.include "../includes/macros.s"
+.include "../includes/api.asm"
 
 ; Code
 * = $000000 
@@ -97,8 +97,8 @@ Lock
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.include "assets/sprites/ball.s"
+.include "../assets/sprites/ball.s"
 
-.include "assets/tiles/clut.s"
-.include "assets/tiles/image.s"
-.include "assets/tiles/map.s"
+.include "../assets/tiles/clut.s"
+.include "../assets/tiles/image.s"
+.include "../assets/tiles/map.s"
