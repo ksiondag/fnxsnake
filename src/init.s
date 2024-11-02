@@ -106,18 +106,6 @@ F256_RESET
     JSR ngn.txtio.init40x30
     JSR ngn.clut.init
 
-    CLI ; Enable interrupts
-    JSR MAIN
-    JMP ngn.input_loop
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-TXT_START      .text "PRESS 0-2 TO PLAY. F3 TO EXIT."
-
-MAIN
-    #ngn.locate 5, 27
-    #ngn.printString TXT_START, len(TXT_START)
-    JSR LoadLevel1
-        
     ; Load sprite colors into CLUT
     LDA #$01 ; Switch to I/O Page #1
     STA MMU_IO_CTRL
@@ -132,61 +120,35 @@ MAIN
     LDA #>VKY_GR_CLUT_0
     STA dst_pointer+1
 
-    LDA #$01
-    STA snake_length
-
-	JSR color_start
+    JSR color_start
 	JSR setup_sprites
-
-    ; Load tile map colors into CLUT
-    LDA #$01 ; Switch to I/O Page #1
-    STA MMU_IO_CTRL
 
     LDA #<tiles_clut_start ; Set the source pointer to the palette
     STA src_pointer
     LDA #>tiles_clut_start
     STA src_pointer+1
-
+    
     LDA #<VKY_GR_CLUT_1 ; Set the destination to Graphics CLUT
     STA dst_pointer
     LDA #>VKY_GR_CLUT_1
     STA dst_pointer+1
 
-	LDX #0                      ; X is a counter for the number of colors copied
+    ; Load tile map colors into CLUT
+    LDA #$01 ; Switch to I/O Page #1
+    STA MMU_IO_CTRL
+
+    LDX #0                      ; X is a counter for the number of colors copied
 
 	JSR tile_color_loop
 	JSR setup_tile_map
-    
-    ; Switch to I/O page 0
+
     STZ MMU_IO_CTRL
 
-    STZ displacement
-    STZ displacement+1
-    LDA #$02
-    STA vel+1
-    LDA #$80
-    STA vel
+    CLI ; Enable interrupts
+    JSR LoadTitle
+    JMP ngn.input_loop
 
-    STZ direction_press
-    LDA #$10
-    STA direction_moving
-
-    LDA #$01
-    STA grid_pos_x
-    LDA #$00
-    STA grid_pos_y
-
-    ; On death, need to make sure movement defaults right
-    PHY
-    LDY #$01
-    LDA #$11
-    STA movement_map,y
-    PLY
-
-    STZ is_dead
-    STZ apple_present
-
-    RTS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 color_start:
 	LDX #0

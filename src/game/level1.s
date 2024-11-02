@@ -6,6 +6,36 @@ LoadLevel1
     #ngn.load16BitImmediate LockLevel1, ngn.TIMER_VECTOR
     #ngn.load16BitImmediate level1.KBD.Poll, ngn.KBD_VECTOR
     #ngn.load16BitImmediate level1.JOY.Poll, ngn.JOYSTICK_VECTOR
+
+    LDA #$01
+    STA snake_length
+
+    STZ displacement
+    STZ displacement+1
+    LDA #$02
+    STA vel+1
+    LDA #$80
+    STA vel
+
+    STZ direction_press
+    LDA #$10
+    STA direction_moving
+
+    LDA #$01
+    STA grid_pos_x
+    LDA #$00
+    STA grid_pos_y
+
+    ; On death, need to make sure movement defaults right
+    PHY
+    LDY #$01
+    LDA #$11
+    STA movement_map,y
+    PLY
+
+    STZ is_dead
+    STZ apple_present
+
     RTS
 
 LockLevel1

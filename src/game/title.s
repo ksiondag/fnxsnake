@@ -18,8 +18,14 @@ title_movement_map:
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 .send
 
+TXT_START      .text "PRESS 0-2 TO PLAY. F3 TO EXIT."
+
 LoadTitle
+    ; TODO: Temporarily automatically load level 1
+    JMP LoadLevel1
     JSR ngn.txtio.clear
+    #ngn.locate 5, 27
+    #ngn.printString TXT_START, len(TXT_START)
     #ngn.load16BitImmediate LockTitle, ngn.TIMER_VECTOR
     #ngn.load16BitImmediate title.KBD.Poll, ngn.KBD_VECTOR
     #ngn.load16BitImmediate title.JOY.Poll, ngn.JOYSTICK_VECTOR
