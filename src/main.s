@@ -24,10 +24,8 @@ JMP F256_RESET
 .dsection data
 
 .section dp
-; Something breaks when I try to dynamically allocate these variables
-; So directly setting where they are
 frame .byte ?
-
+playback_mode .byte ?
 dst_pointer .word ?
 src_pointer .word ?
 sprite_x .word ?
@@ -73,26 +71,7 @@ event .dstruct kernel.event.event_t
 .include "movement.s"
 .include "apple.s"
 .include "collision.s"
-
-LockTitle
-LockGame
-    JSR PlaceApple
-    JSR UpdateMovement
-    JSR AnimateMovement
-    JSR RenderApple
-
-    LDA is_dead
-    CMP #$01
-    BEQ Reset
-
-    ; CheckCollision either ends with reset or falls back into lock from above
-    JSR CheckCollision
-
-    LDA is_dead
-    CMP #$01
-    BEQ Reset
-
-    RTS
+.include "game/init.s"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

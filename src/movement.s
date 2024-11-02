@@ -31,6 +31,10 @@ buffer_after_map:
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 .send
 
+.section dp
+movement_map_pointer .word ?
+.send
+
 UpdateMovement:
     ; Though the game is animating the movement to each tile
     ; direction of movement can only update at overlap of tile
@@ -72,9 +76,9 @@ MovementSrcPointer:
     ; Sets direction_moving_pointer to current x,y direction_moving
     ; Sets X to grid_pos_x
     ; Loads direction_moving with the value stored at that x,y in movement_map 
-    LDA #<movement_map
+    LDA movement_map_pointer
     STA direction_moving_pointer
-    LDA #>movement_map
+    LDA movement_map_pointer+1
     STA direction_moving_pointer+1
 MovementMapRow:
     LDY #$00
@@ -253,6 +257,10 @@ UpdateGridPositionCommit:
     ADC direction_moving_update_amount+1
     STA direction_moving_pointer+1
 
+    ; This code updates the next coordinate in movement map to keep moving in the current direction
+    ; This prevents a previous movement on this space from changing direction without player involvement
+    LDA playback_mode
+    BEQ _maintain_stack
     LDA #$00
     STA (direction_moving_pointer)
     PLA
@@ -265,7 +273,12 @@ UpdateGridPositionCommit:
     CLC
     ORA (direction_moving_pointer)
     STA (direction_moving_pointer)
+    BRA _maintain_grid
 
+_maintain_stack
+    PLA
+
+_maintain_grid
     ; X,Y need to maintain grid position
     ; direction_moving_pointer has been properly updated above
     LDX grid_pos_x

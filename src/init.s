@@ -61,7 +61,7 @@ F256_RESET
     LDA INT_PENDING_REG1
     STA INT_PENDING_REG1
 
-    LDA #$34 ;(Mstr_Ctrl_Text_Mode_En|Mstr_Ctrl_Text_Overlay|Mstr_Ctrl_Graph_Mode_En|Mstr_Ctrl_Bitmap_En|Mstr_Ctrl_Sprite_En|Mstr_Ctrl_TileMap_En)
+    LDA #(Mstr_Ctrl_Text_Mode_En|Mstr_Ctrl_Text_Overlay|Mstr_Ctrl_Graph_Mode_En|Mstr_Ctrl_Bitmap_En|Mstr_Ctrl_Sprite_En|Mstr_Ctrl_TileMap_En)
     STA @w MASTER_CTRL_REG_L 
     LDA #(Mstr_Ctrl_Text_XDouble|Mstr_Ctrl_Text_YDouble)
     STA @w MASTER_CTRL_REG_H
@@ -103,14 +103,20 @@ F256_RESET
     STA RND_CTRL
 
     JSR ngn.Init_EventHandler
+    JSR ngn.txtio.init40x30
+    JSR ngn.clut.init
 
     CLI ; Enable interrupts
     JSR MAIN
     JMP ngn.input_loop
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-MAIN    
-    #ngn.load16BitImmediate LockGame, ngn.TIMER_VECTOR 
+TXT_START      .text "PRESS 0-2 TO PLAY. F3 TO EXIT."
+
+MAIN
+    #ngn.locate 5, 27
+    #ngn.printString TXT_START, len(TXT_START)
+    JSR LoadLevel1
         
     ; Load sprite colors into CLUT
     LDA #$01 ; Switch to I/O Page #1
