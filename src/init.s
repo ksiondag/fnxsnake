@@ -106,6 +106,22 @@ F256_RESET
     JSR ngn.txtio.init40x30
     JSR ngn.clut.init
 
+    JSR sprite_color_start
+
+	JSR tile_color_start
+	JSR setup_tile_map
+
+    STZ MMU_IO_CTRL
+
+    CLI ; Enable interrupts
+    JSR LoadTitle
+    JMP ngn.input_loop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+sprite_color_start:
+    LDA MMU_IO_CTRL
+    PHA
     ; Load sprite colors into CLUT
     LDA #$01 ; Switch to I/O Page #1
     STA MMU_IO_CTRL
@@ -119,40 +135,8 @@ F256_RESET
     STA dst_pointer
     LDA #>VKY_GR_CLUT_0
     STA dst_pointer+1
-
-    JSR color_start
-	JSR setup_sprites
-
-    LDA #<tiles_clut_start ; Set the source pointer to the palette
-    STA src_pointer
-    LDA #>tiles_clut_start
-    STA src_pointer+1
-    
-    LDA #<VKY_GR_CLUT_1 ; Set the destination to Graphics CLUT
-    STA dst_pointer
-    LDA #>VKY_GR_CLUT_1
-    STA dst_pointer+1
-
-    ; Load tile map colors into CLUT
-    LDA #$01 ; Switch to I/O Page #1
-    STA MMU_IO_CTRL
-
-    LDX #0                      ; X is a counter for the number of colors copied
-
-	JSR tile_color_loop
-	JSR setup_tile_map
-
-    STZ MMU_IO_CTRL
-
-    CLI ; Enable interrupts
-    JSR LoadTitle
-    JMP ngn.input_loop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-color_start:
 	LDX #0
-color_loop: 
+sprite_color_loop: 
     LDY #0 ; Y points to the color component
 
     LDA (src_pointer),y ; Read a byte from the code
@@ -168,7 +152,7 @@ color_loop:
 
     INX ; Move to the next color
     CPX #16
-    BEQ done_lut ; Until we have copied all 16
+    BEQ color_done_lut ; Until we have copied all 16
 
     CLC ; Move src_pointer to the next source color
     LDA src_pointer
@@ -185,11 +169,15 @@ color_loop:
     LDA dst_pointer+1
     ADC #0
     STA dst_pointer+1
-    BRA color_loop ; And start copying that new color
-done_lut:
+    BRA sprite_color_loop ; And start copying that new color
+color_done_lut:
+    PLA
+    STA MMU_IO_CTRL ; Restore MMU_IO_CTRL
 	RTS
 
 setup_sprites:
+    LDA MMU_IO_CTRL
+    PHA
     STZ MMU_IO_CTRL ; Go back to I/O Page 0
     LDA #$00
     STA src_pointer
@@ -254,11 +242,30 @@ setup_sprite:
     BRA setup_sprite
 
 done_setup_sprite:
-    LDA #$02 ; Set I/O page to 2
+    PLA ; Restore MMU_IO_CTRL
     STA MMU_IO_CTRL
 
 	RTS
 
+tile_color_start:
+    LDA MMU_IO_CTRL
+    PHA
+    ; Load tile map colors into CLUT
+    LDA #$01 ; Switch to I/O Page #1
+    STA MMU_IO_CTRL
+    LDA #<tiles_clut_start ; Set the source pointer to the palette
+    STA src_pointer
+    LDA #>tiles_clut_start
+    STA src_pointer+1
+    
+    LDA #<VKY_GR_CLUT_1 ; Set the destination to Graphics CLUT
+    STA dst_pointer
+    LDA #>VKY_GR_CLUT_1
+    STA dst_pointer+1
+
+    PHX
+    PHY
+    LDX #0                      ; X is a counter for the number of colors copied
 tile_color_loop: 
 	LDY #0                      ; Y is a pointer to the component within a CLUT color
 comp_loop:  
@@ -291,9 +298,15 @@ comp_loop:
 	BRA tile_color_loop              ; And start copying that new color
 
 tile_done_lut:
+    PLY
+    PLX
+    PLA
+    STA MMU_IO_CTRL
 	RTS
 
 setup_tile_map:
+    LDA MMU_IO_CTRL
+    PHA
     STZ MMU_IO_CTRL             ; Go back to I/O Page 0
 
     ;
@@ -337,6 +350,8 @@ setup_tile_map:
     STZ VKY_TM0_POS_Y_L         ; Set scrolling Y = 0
     STZ VKY_TM0_POS_Y_H
 
+    PLA
+    STA MMU_IO_CTRL
 	RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

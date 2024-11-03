@@ -21,7 +21,7 @@ TXT_GREEN = 3
 TXT_AMBER = 4
 TXT_RED = 5
 TXT_GRAY = 6
-TXT_BROWN = 7
+TXT_GOLD = 7
 
 clut .namespace
 
@@ -64,8 +64,8 @@ init
     #setTxtColInt TXT_GREEN,  $00, $FF, $00, $FF
     #setTxtColInt TXT_AMBER,  $FA, $63, $05, $FF
     #setTxtColInt TXT_RED,    $FF, $00, $00, $FF
-    #setTxtColInt TXT_GRAY,   $00, $B0, $00, $FF
-    #setTxtColInt TXT_BROWN,   $5C, $40, $33, $FF
+    #setTxtColInt TXT_GRAY,   $B0, $B0, $B0, $FF
+    #setTxtColInt TXT_GOLD,   $D4, $AF, $37, $FF
 
     #restoreIo
     rts

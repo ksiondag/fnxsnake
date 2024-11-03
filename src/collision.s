@@ -1,5 +1,5 @@
 Reset
-    #ngn.load16BitImmediate LoadTitle, ngn.TIMER_VECTOR
+    #ngn.load16BitImmediate LoadLevel1, ngn.TIMER_VECTOR
     RTS
 
 SetIsDead

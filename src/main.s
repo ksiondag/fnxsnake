@@ -24,10 +24,17 @@ JMP F256_RESET
 .dsection data
 
 .section dp
-frame .byte ?
-playback_mode .byte ?
 dst_pointer .word ?
 src_pointer .word ?
+
+negate_pointer .word ?
+
+direction_moving_pointer .word ?
+direction_moving_update_amount .word ?
+.send
+
+.section data
+playback_mode .byte ?
 sprite_x .word ?
 sprite_y .word ?
 sprite_update_amount .word ?
@@ -49,20 +56,13 @@ grid_pos_x .byte ?
 grid_pos_y .byte ?
 grid_pos_update_amount .word ?
 
-snake_length .word ?
-
-negate_pointer .word ?
-
-direction_moving_pointer .word ?
-direction_moving_update_amount .word ?
-
 ; Apple data
 apple_present .byte ?
 apple_pos_x .byte ?
 apple_pos_y .byte ?
-.send
 
-.section data
+snake_length .word ?
+
 event .dstruct kernel.event.event_t
 .send
 

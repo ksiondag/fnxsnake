@@ -260,7 +260,7 @@ UpdateGridPositionCommit:
     ; This code updates the next coordinate in movement map to keep moving in the current direction
     ; This prevents a previous movement on this space from changing direction without player involvement
     LDA playback_mode
-    BEQ _maintain_stack
+    BNE _maintain_stack
     LDA #$00
     STA (direction_moving_pointer)
     PLA

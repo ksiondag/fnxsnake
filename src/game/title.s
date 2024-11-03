@@ -18,17 +18,56 @@ title_movement_map:
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 .send
 
-TXT_START      .text "PRESS 0-2 TO PLAY. F3 TO EXIT."
+TXT_CURSOR .text "*"
+TXT_START .text "Game Start"
+TXT_EXIT .text "Exit Game"
 
 LoadTitle
-    ; TODO: Temporarily automatically load level 1
-    JMP LoadLevel1
+	JSR setup_sprites
     JSR ngn.txtio.clear
-    #ngn.locate 5, 27
+
+    LDA #$77
+    STA ngn.CURSOR_STATE.col
+    #ngn.locate 14, 15
+    #ngn.printString TXT_CURSOR, len(TXT_CURSOR)
+    #ngn.locate 16, 15
     #ngn.printString TXT_START, len(TXT_START)
+
+    LDA #$11
+    STA ngn.CURSOR_STATE.col
+    #ngn.locate 16, 17
+    #ngn.printString TXT_EXIT, len(TXT_EXIT)
+
+    #ngn.load16BitImmediate title_movement_map, movement_map_pointer
     #ngn.load16BitImmediate LockTitle, ngn.TIMER_VECTOR
     #ngn.load16BitImmediate title.KBD.Poll, ngn.KBD_VECTOR
     #ngn.load16BitImmediate title.JOY.Poll, ngn.JOYSTICK_VECTOR
+
+    LDA #$01
+    STA playback_mode
+
+    LDA #$10
+    STA snake_length
+
+    STZ displacement
+    STZ displacement+1
+    LDA #$02
+    STA vel+1
+    LDA #$80
+    STA vel
+
+    STZ direction_press
+    LDA #$10
+    STA direction_moving
+
+    LDA #$04
+    STA grid_pos_x
+    LDA #$03
+    STA grid_pos_y
+
+    STZ is_dead
+    STZ apple_present
+
     RTS
 
 LockTitle
@@ -37,84 +76,30 @@ LockTitle
 
     RTS
 
-_reset
-    JMP Reset
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 title .namespace
 
 TRY_MOVE .namespace
 
-Left
-    ; Only set next direction to left if current direction is not left or right
-    LDA (direction_moving_pointer)
-    AND #$30
-    CMP #$00
-    BNE _done
+Confirm
+    JSR LoadLevel1
+_done
+    RTS
 
-    LDA (direction_moving_pointer)
-    AND #$F0
-    ORA #$02
-    STA (direction_moving_pointer)
-    
-    LDA direction_press
-    ORA #$20
-    STA direction_press
+Left
 _done
     RTS
 
 Up
-    ; Only set next direction to up if current direction is not up or down
-    LDA (direction_moving_pointer)
-    AND #$C0
-    CMP #$00
-    BNE _done
-
-    LDA (direction_moving_pointer)
-    AND #$F0
-    ORA #$08
-    STA (direction_moving_pointer)
-    
-    LDA direction_press
-    ORA #$80
-    STA direction_press
 _done
     RTS
 
 Right
-    ; Only set next direction to left if current direction is not left or right
-    LDA (direction_moving_pointer)
-    AND #$30
-    CMP #$00
-    BNE _done
-
-    LDA (direction_moving_pointer)
-    AND #$F0
-    ORA #$01
-    STA (direction_moving_pointer)
-    
-    LDA direction_press
-    ORA #$10
-    STA direction_press
 _done
     RTS
 
 Down
-    ; Only set next direction to up if current direction is not up or down
-    LDA (direction_moving_pointer)
-    AND #$C0
-    CMP #$00
-    BNE _done
-
-    LDA (direction_moving_pointer)
-    AND #$F0
-    ORA #$04
-    STA (direction_moving_pointer)
-    
-    LDA direction_press
-    ORA #$40
-    STA direction_press
 _done
     RTS
 .endn
@@ -166,6 +151,7 @@ DoneCheckInput
 
 KBD .namespace
 
+; TODO: Fix copy-paste code between title and level1
 ASCII_UP = 16
 ASCII_W = 119
 
@@ -178,8 +164,18 @@ ASCII_A = 97
 ASCII_RIGHT = 6
 ASCII_D = 100
 
+ASCII_ENTER = $0D
+
 Poll
     lda event.key.ascii
+CheckEnter
+    cmp #ASCII_ENTER
+    beq TryConfirm
+    bra CheckLeftArrow
+TryConfirm
+    JSR TRY_MOVE.Confirm
+    JMP DoneCheckInput
+
 CheckLeftArrow
     cmp #ASCII_LEFT
     beq TryMoveLeft

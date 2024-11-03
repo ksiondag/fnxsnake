@@ -1,11 +1,14 @@
 LoadLevel1
+	JSR setup_sprites
+
     #ngn.load16BitImmediate movement_map, movement_map_pointer
-    LDA #$00
-    STA playback_mode
     JSR ngn.txtio.clear
     #ngn.load16BitImmediate LockLevel1, ngn.TIMER_VECTOR
     #ngn.load16BitImmediate level1.KBD.Poll, ngn.KBD_VECTOR
     #ngn.load16BitImmediate level1.JOY.Poll, ngn.JOYSTICK_VECTOR
+
+    LDA #$00
+    STA playback_mode
 
     LDA #$01
     STA snake_length
@@ -23,8 +26,10 @@ LoadLevel1
 
     LDA #$01
     STA grid_pos_x
+    TAX
     LDA #$00
     STA grid_pos_y
+    TAY
 
     ; On death, need to make sure movement defaults right
     PHY
@@ -186,6 +191,7 @@ DoneCheckInput
 
 KBD .namespace
 
+; TODO: Fix copy-paste code between title and level1
 ASCII_UP = 16
 ASCII_W = 119
 
@@ -197,6 +203,8 @@ ASCII_A = 97
 
 ASCII_RIGHT = 6
 ASCII_D = 100
+
+ASCII_ENTER = $0D
 
 Poll
     lda event.key.ascii
