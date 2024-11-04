@@ -16,27 +16,92 @@ title_movement_map:
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
     .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-.send
 
 TXT_CURSOR .text "*"
 TXT_START .text "Game Start"
 TXT_EXIT .text "Exit Game"
 
-LoadTitle
-	JSR setup_sprites
-    JSR ngn.txtio.clear
+title_index .byte ?
+cursor_x .byte ?
+cursor_y .byte ?
+.send
 
-    LDA #$77
+HIGHLIGHT_COLOR = $77
+STANDARD_COLOR = $11
+
+GameStart
+    JMP LoadLevel1
+ExitGame
+    JSR ngn.txtio.init80x60
+    LDA #65
+    ; TODO: Is it bad that I'm exiting to a different program with data on the stack?
+    STA kernel.args.run.block_id
+    JSR kernel.RunBlock
+    ; This part shouldn't happen
+    ; TODO: If above errors, we'll want to do a 'Software reset' (see chapter 17 of system manual)
+    RTS
+
+PrepRow
+    CPY title_index
+    BEQ _highlight
+_standard
+    LDA #STANDARD_COLOR
     STA ngn.CURSOR_STATE.col
-    #ngn.locate 14, 15
+    BRA _done
+_highlight
+    LDA #HIGHLIGHT_COLOR
+    STA ngn.CURSOR_STATE.col
+    JMP PrintCursor
+_done
+    RTS
+
+PrintCursor
+    LDA cursor_x
+    PHA
+
+    CLC
+    SBC #2
+    STA cursor_x
+
+    #ngn.locate cursor_x, cursor_y
     #ngn.printString TXT_CURSOR, len(TXT_CURSOR)
-    #ngn.locate 16, 15
+
+    PLA
+    STA cursor_x
+    RTS
+
+PrintTitleScreen
+    JSR ngn.txtio.clear
+    PHY
+    LDY #$00
+
+    LDA #16
+    STA cursor_x
+
+    LDA #15
+    STA cursor_y
+
+    JSR PrepRow
+    #ngn.locate cursor_x, cursor_y
     #ngn.printString TXT_START, len(TXT_START)
 
-    LDA #$11
-    STA ngn.CURSOR_STATE.col
-    #ngn.locate 16, 17
+    LDY #$01
+    CLC
+    LDA cursor_y
+    ADC #2
+    STA cursor_y
+
+    JSR PrepRow
+    #ngn.locate cursor_x, cursor_y
     #ngn.printString TXT_EXIT, len(TXT_EXIT)
+
+    PLY
+    RTS
+
+LoadTitle
+	JSR setup_sprites   
+    STZ title_index
+    JSR PrintTitleScreen
 
     #ngn.load16BitImmediate title_movement_map, movement_map_pointer
     #ngn.load16BitImmediate LockTitle, ngn.TIMER_VECTOR
@@ -83,25 +148,47 @@ title .namespace
 TRY_MOVE .namespace
 
 Confirm
-    JSR LoadLevel1
-_done
-    RTS
+    LDA title_index
+    CMP #0
+    BEQ _game_start
+    CMP #1
+    BEQ _exit_game
+    BRA _exit_game ; Shouldn't happen
+_game_start
+    JMP GameStart
+_exit_game
+    JMP ExitGame
 
 Left
 _done
     RTS
 
 Up
+    LDA title_index
+    SEC
+    SBC #1 
+    STA title_index
+    CMP #$FF
+    BNE _done
+    STZ title_index
 _done
-    RTS
+    JMP PrintTitleScreen
 
 Right
 _done
     RTS
 
 Down
+    LDA title_index
+    CLC
+    ADC #1
+    STA title_index
+    CMP #2
+    BNE _done
+    LDA #1
+    STA title_index
 _done
-    RTS
+    JMP PrintTitleScreen
 .endn
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -112,10 +199,13 @@ UP    = 1
 DOWN  = 2
 LEFT  = 4
 RIGHT = 8
+BUTTON1 = $10
+BUTTON2 = $20
+BUTTON3 = $40
 
 Poll
     PHX
-    LDA event.joystick.joy0+1
+    LDA event.joystick.joy1
     TAX
 CheckLeft
     TXA
@@ -138,9 +228,26 @@ CheckRight
 CheckDown
     TXA
     AND #DOWN
-    BEQ DoneCheckInput
+    BEQ CheckButton
     JSR TRY_MOVE.Down
     JMP DoneCheckInput
+CheckButton
+    TXA
+    AND #BUTTON1
+    BNE _confirm
+    TXA
+    AND #BUTTON2
+    BNE _confirm
+    TXA
+    AND #BUTTON3
+    BNE _confirm
+    BRA DoneCheckInput
+_confirm
+    TXA
+    AND #$80
+    BNE DoneCheckInput
+    JSR TRY_MOVE.Confirm
+
 DoneCheckInput
     PLX
     RTS

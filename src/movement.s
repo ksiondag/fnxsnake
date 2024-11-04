@@ -32,8 +32,11 @@ buffer_after_map:
 .send
 
 .section dp
+negate_pointer .word ?
 movement_map_pointer .word ?
 .send
+
+sprite_pointer = src_pointer
 
 UpdateMovement:
     ; Though the game is animating the movement to each tile
@@ -158,9 +161,9 @@ UpdateGridPosition:
 
     ; Second, point to sprite_x
     LDA #<sprite_x
-    STA src_pointer
+    STA sprite_pointer
     LDA #>sprite_x
-    STA src_pointer+1
+    STA sprite_pointer+1
 
     LDA #$10
     STA sprite_update_amount

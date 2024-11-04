@@ -60,9 +60,9 @@ printStringLenMem .macro address, length
 .endmacro
 
 locate .macro x_pos, y_pos
-    lda #\x_pos
+    lda \x_pos
     sta ngn.CURSOR_STATE.xPos
-    lda #\y_pos
+    lda \y_pos
     sta ngn.CURSOR_STATE.yPos
     jsr ngn.txtio.cursorSet
 .endmacro

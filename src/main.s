@@ -24,13 +24,11 @@ JMP F256_RESET
 .dsection data
 
 .section dp
-dst_pointer .word ?
 src_pointer .word ?
+dst_pointer .word ?
 
-negate_pointer .word ?
-
+; TODO: This belongs in a general game code-area/namespace
 direction_moving_pointer .word ?
-direction_moving_update_amount .word ?
 .send
 
 .section data
@@ -47,9 +45,10 @@ direction_press .byte ?
 
 ; Current direction, next direction tracking
 direction_moving .byte ?
+direction_moving_update_amount .word ?
 
 ; Track if dead
-is_dead .word ?
+is_dead .byte ?
 
 ; Position as grid (to save history of movement in 2d array)
 grid_pos_x .byte ?
