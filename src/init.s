@@ -106,14 +106,13 @@ F256_RESET
     JSR ngn.txtio.init40x30
     JSR ngn.clut.init
 
-    JSR sprite_color_start
+    CLI ; Enable interrupts
 
+    JSR sprite_color_start
 	JSR tile_color_start
 	JSR setup_tile_map
 
     STZ MMU_IO_CTRL
-
-    CLI ; Enable interrupts
     JSR LoadTitle
     JMP ngn.input_loop
 
@@ -253,9 +252,11 @@ tile_color_start:
     ; Load tile map colors into CLUT
     LDA #$01 ; Switch to I/O Page #1
     STA MMU_IO_CTRL
-    LDA #<tiles_clut_start ; Set the source pointer to the palette
+    ;LDA #<tiles_clut_start ; Set the source pointer to the palette
+    LDA #<snake_clut
     STA src_pointer
-    LDA #>tiles_clut_start
+    ;LDA #>tiles_clut_start
+    LDA #>snake_clut
     STA src_pointer+1
     
     LDA #<VKY_GR_CLUT_1 ; Set the destination to Graphics CLUT
@@ -276,7 +277,7 @@ comp_loop:
 	bne comp_loop               ; Continue until we have copied 4 bytes
 
 	INX                         ; Move to the next color
-	CMP #20
+	CPX #20
 	BEQ tile_done_lut                ; Until we have copied all 20
 
 	CLC                         ; Advance src_pointer to the next source color entry
@@ -313,11 +314,18 @@ setup_tile_map:
     ; Set tile set #0 to our image
     ;
 
-    LDA #<tiles_img_start
+    ;LDA #<tiles_img_start
+    ;STA VKY_TS0_ADDR_L
+    ;LDA #>tiles_img_start
+    ;STA VKY_TS0_ADDR_M
+    ;LDA #`tiles_img_start
+    ;STA VKY_TS0_ADDR_H
+
+    LDA #<snake_tile.img_start
     STA VKY_TS0_ADDR_L
-    LDA #>tiles_img_start
+    LDA #>snake_tile.img_start
     STA VKY_TS0_ADDR_M
-    LDA #`tiles_img_start
+    LDA #`snake_tile.img_start
     STA VKY_TS0_ADDR_H
 
     ;
@@ -335,11 +343,18 @@ setup_tile_map:
     LDA #16
     STA VKY_TM0_SIZE_Y
 
-    LDA #<tile_map              ; Point to the tile map
+    ;LDA #<tile_map              ; Point to the tile map
+    ;STA VKY_TM0_ADDR_L
+    ;LDA #>tile_map
+    ;STA VKY_TM0_ADDR_M
+    ;LDA #`tile_map
+    ;STA VKY_TM0_ADDR_H
+
+    LDA #<snake_tile.tile_map              ; Point to the tile map
     STA VKY_TM0_ADDR_L
-    LDA #>tile_map
+    LDA #>snake_tile.tile_map
     STA VKY_TM0_ADDR_M
-    LDA #`tile_map
+    LDA #`snake_tile.tile_map
     STA VKY_TM0_ADDR_H
 
     LDA #$10                    ; Set scrolling X = 16

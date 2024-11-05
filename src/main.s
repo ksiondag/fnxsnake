@@ -79,3 +79,4 @@ event .dstruct kernel.event.event_t
 .include "../assets/tiles/clut.s"
 .include "../assets/tiles/image.s"
 .include "../assets/tiles/map.s"
+.include "../assets/snake-tiles-different-colors.s"

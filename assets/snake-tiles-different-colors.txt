@@ -1,0 +1,14 @@
+16,0,16,updown
+32,48,16,upleft
+32,0,16,upright
+16,16,16,downup
+48,16,16,downleft
+48,32,16,downright
+0,16,16,leftup
+48,0,16,leftright
+0,48,16,leftdown
+16,48,16,rightup
+0,32,16,rightdown
+32,16,16,rightleft
+16,32,16,tail
+32,32,16,head

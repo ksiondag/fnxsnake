@@ -426,8 +426,102 @@ LoadCellCommit:
     RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+.section data
+displacement_clut .byte ?
+.send
+
+FirstSrcColor
+    LDA #<snake_clut
+    STA src_pointer
+    LDA #>snake_clut
+    STA src_pointer+1
+    JSR NextSrcColor
+    RTS
+FirstDstColor
+    LDA #<VKY_GR_CLUT_1 ; Set the destination to Graphics CLUT
+    STA dst_pointer
+    LDA #>VKY_GR_CLUT_1
+    STA dst_pointer+1
+    JSR NextDstColor
+    RTS
+
+NextSrcColor
+	CLC                         ; Advance src_pointer to the next source color entry
+	LDA src_pointer
+	ADC #4
+	STA src_pointer
+	LDA src_pointer+1
+	ADC #0
+	STA src_pointer+1
+    RTS
+
+NextDstColor
+	CLC                         ; Advance src_pointer to the next source color entry
+	LDA dst_pointer
+	ADC #4
+	STA dst_pointer
+	LDA dst_pointer+1
+	ADC #0
+	STA dst_pointer+1
+    RTS
+
+AnimateSnakeTiles:
+    ; Load tile map colors into CLUT
+    LDA #$01 ; Switch to I/O Page #1
+    STA MMU_IO_CTRL
+    JSR FirstSrcColor
+    JSR FirstDstColor
+
+_displacement_rotate:
+    PHX
+    LDX #0
+_displacement_loop:
+    CPX displacement+1
+    BEQ _displacement_done
+    JSR NextDstColor
+    INX
+    BRA _displacement_loop
+_displacement_done:
+    PLX
+    
+    SEC
+    LDA #16
+    SBC displacement+1
+    STA displacement_clut
+    JSR _tile_color_assign
+
+    JSR FirstDstColor
+    LDA displacement+1
+    STA displacement_clut
+_tile_color_assign
+    PHX
+    PHY
+    LDX #0                      ; X is a counter for the number of colors copied
+_tile_color_loop: 
+	LDY #0                      ; Y is a pointer to the component within a CLUT color
+_comp_loop:  
+	CPX displacement_clut
+	BEQ _tile_done_lut
+
+	LDA (src_pointer),y             ; Read a byte from the code
+	STA (dst_pointer),y             ; And write it to the CLUT
+	INY                         ; Move to the next byte
+	cpy #4
+	bne _comp_loop               ; Continue until we have copied 4 bytes
+
+	INX                         ; Move to the next color
+
+    JSR NextSrcColor
+    JSR NextDstColor
+	BRA _tile_color_loop              ; And start copying that new color
+
+_tile_done_lut:
+    PLY
+    PLX
+	RTS
 
 AnimateMovement:
+    JSR AnimateSnakeTiles
     STZ MMU_IO_CTRL ; Go back to I/O Page 0
 
     ; Start at first sprite

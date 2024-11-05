@@ -1,3 +1,26 @@
+clut_length = 20
+snake_clut:
+    .byte $00, $00, $00, $00
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $00, $00, $00, $FF
+    .byte $FF, $FF, $FF, $FF
+    .byte $FF, $FF, $FF, $FF
+    .byte $00, $00, $00, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $00, $00, $00, $FF
+    .byte $0B, $9B, $F7, $FF
+    .byte $FF, $FF, $FF, $FF
+
 tiles_clut_start:
 	.byte $00, $00, $00, $00
 	.byte $00, $44, $44, $00
